@@ -8,12 +8,12 @@ using System.Windows;
 // 控制。更改这些特性值可修改
 // 与程序集关联的信息。
 [assembly: AssemblyTitle("PaperReferenceSearch")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("一个工具 用来处理规范格式的文献摘要来确定自引他引并输出要求格式文档")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("PaperReferenceSearch")]
+[assembly: AssemblyCompany("xs.zhou")]
+[assembly: AssemblyProduct("PaperReferenceSearch Kiwi Fruit")]
 [assembly: AssemblyCopyright("Copyright ©  2018")]
-[assembly: AssemblyTrademark("")]
+[assembly: AssemblyTrademark("Imagination Studio")]
 [assembly: AssemblyCulture("")]
 
 // 将 ComVisible 设置为 false 会使此程序集中的类型

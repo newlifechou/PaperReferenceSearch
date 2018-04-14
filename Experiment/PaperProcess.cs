@@ -22,6 +22,7 @@ namespace Experiment
             int count1 = doc.FindAll("被引文献").Count;
             int count2 = doc.FindAll("引用文献").Count;
             doc.Dispose();
+            if (count1 == 0 || count2 == 0) return false;
             result = count1 == count2;
             return result;
         }
