@@ -10,6 +10,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Diagnostics;
 
 namespace PaperReferenceSearch
 {
@@ -22,7 +23,7 @@ namespace PaperReferenceSearch
             statusMsg = new StringBuilder();
             inputPath = System.IO.Path.Combine(Environment.CurrentDirectory, "DataSample");
             outputPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
-            canOpenOutputFolder = false;
+            canOpenOutputFolder = true;
 
             LoadInputFiles();
 
@@ -44,6 +45,9 @@ namespace PaperReferenceSearch
 
             try
             {
+                Stopwatch sw = new Stopwatch();
+                sw.Reset();
+                sw.Start();
                 PaperProcess service = new PaperProcess();
                 AppendStatusMessage("####开始处理格式规范的有效文件");
                 var mainFolder = Path.Combine(OutputPath, DateTime.Now.ToString("yyMMdd"));
@@ -71,11 +75,12 @@ namespace PaperReferenceSearch
                     service.Output(joblist, output_other, OutputType.Other);
                     AppendStatusMessage($"输出文件:{output_other}");
                 }
-                AppendStatusMessage("处理完毕");
+                sw.Stop();
+                AppendStatusMessage($"处理完毕，共耗时{sw.ElapsedMilliseconds}ms");
 
                 if (CanOpenOutputFolder)
                 {
-                    System.Diagnostics.Process.Start(mainFolder);
+                    Process.Start(mainFolder);
                 }
 
             }

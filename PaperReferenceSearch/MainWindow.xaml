@@ -13,9 +13,10 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
+            <RowDefinition/>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition/>
         </Grid.RowDefinitions>
         <TextBlock Grid.Row="0" Text="请执行下面的操作" Style="{StaticResource StyleTextBlockCommon}"/>
         <Grid Grid.Row="1">
@@ -51,23 +52,33 @@
         </DataGrid>
         <Grid Grid.Row="3">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="auto"/>
                 <ColumnDefinition/>
                 <ColumnDefinition Width="auto"/>
+                <ColumnDefinition Width="auto"/>
+                <ColumnDefinition Width="auto"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Column="1" Text="默认使用作者姓名缩写进行对比" Style="{StaticResource StyleTextBlockCommon}"/>
+            <CheckBox Grid.Column="2" Content="使用下划线标记自引文献标题(不勾使用黄色背景)"
+                      Style="{StaticResource StyleCheckBoxCommon}" />
+            <CheckBox Grid.Column="3" Content="完成后打开输出文件夹"
+                      Style="{StaticResource StyleCheckBoxCommon}" 
+                      IsChecked="{Binding CanOpenOutputFolder,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>
+        </Grid>
+        <Grid Grid.Row="4">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="auto"/>
+                <ColumnDefinition/>
                 <ColumnDefinition Width="auto"/>
             </Grid.ColumnDefinitions>
             <Button Name="BtnOutputFolder" Grid.Column="0" Content="输出文件夹" Style="{StaticResource StyleButtonCommon}"
                     Command="{Binding ChooseOutputFolder}"/>
             <TextBox Name="TxtOutputPath" Grid.Column="1" Style="{StaticResource StyleTextReadOnly}"
                      Text="{Binding OutputPath}"/>
-            <CheckBox Name="ChkOpenOutputFolder" Grid.Column="2" Content="完成后打开输出文件夹"
-                      Style="{StaticResource StyleCheckBoxCommon}" 
-                      IsChecked="{Binding CanOpenOutputFolder,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>
-            <Button Name="BtnStartProcess" Grid.Column="3" Content="全部处理" Width="150"
+            <Button Name="BtnStartProcess" Grid.Column="2" Content="全部处理" Width="150"
                     Style="{StaticResource StyleButtonCommon}" Foreground="Blue" FontWeight="Bold"
                     Command="{Binding Start}"/>
         </Grid>
-        <TextBox Name="TxtStatus" Grid.Row="4" Style="{StaticResource StyleTextMultiLine}"
+        <TextBox Name="TxtStatus" Grid.Row="5" Style="{StaticResource StyleTextMultiLine}"
                  Text="{Binding StatusMessage}"/>
     </Grid>
 </Window>
