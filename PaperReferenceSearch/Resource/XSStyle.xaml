@@ -40,6 +40,7 @@
         <Setter Property="Margin" Value="3"/>
         <Setter Property="Padding" Value="3"/>
         <Setter Property="AcceptsReturn" Value="True"/>
+        <Setter Property="IsReadOnly" Value="True"/>
     </Style>
     <Style x:Key="StyleCheckBoxCommon" TargetType="CheckBox">
         <Setter Property="Margin" Value="3"/>

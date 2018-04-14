@@ -8,7 +8,8 @@ namespace PaperReferenceSearch.Model
 {
     public class DataFile
     {
-        public string FileName { get; set; }
+        public string Name { get; set; }
+        public string FullName { get; set; }
         public bool ValidateState { get; set; }
     }
 }

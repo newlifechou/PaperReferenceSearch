@@ -25,9 +25,10 @@
                 <ColumnDefinition Width="auto"/>
             </Grid.ColumnDefinitions>
             <Button Name="BtnInputFolder" Grid.Column="0" Content="输入文件夹" Style="{StaticResource StyleButtonCommon}"
-                    Click="BtnInputFolder_Click"/>
-            <TextBox Name="TxtInputPath" Grid.Column="1" Style="{StaticResource StyleTextReadOnly}"/>
-            <Button Name="BtnStandardFormat" Grid.Column="2" Content="规范格式" Style="{StaticResource StyleButtonCommon}"
+                    Command="{Binding ChooseInputFolder}"/>
+            <TextBox Name="TxtInputPath" Grid.Column="1" Style="{StaticResource StyleTextReadOnly}"
+                     Text="{Binding InputPath}"/>
+            <Button Name="BtnStandardFormat" Grid.Column="2" Content="什么是规范格式?" Style="{StaticResource StyleButtonCommon}"
                     />
         </Grid>
         <DataGrid Name="DgInputFiles" Grid.Row="2" Style="{StaticResource StyleDataGridCommon}"
@@ -36,11 +37,13 @@
                 <DataGridTemplateColumn Header="操作">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
-                            <Button Content="打开" Style="{StaticResource StyleButtonCommonDG}"/>
+                            <Button Content="查看" Style="{StaticResource StyleButtonCommonDG}"
+                                    Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}
+                                            ,Path=DataContext.OpenDataFile}" CommandParameter="{Binding}"/>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
-                <DataGridTextColumn Header="文件名" Binding="{Binding FileName}" Width="300"
+                <DataGridTextColumn Header="文件名" Binding="{Binding Name}" Width="300"
                                     ElementStyle="{StaticResource StyleTextBlockCommonDG}"/>
                 <DataGridTextColumn Header="是否规范" Binding="{Binding ValidateState}"
                                     ElementStyle="{StaticResource StyleTextBlockCommonDG}"/>
@@ -53,13 +56,16 @@
                 <ColumnDefinition Width="auto"/>
                 <ColumnDefinition Width="auto"/>
             </Grid.ColumnDefinitions>
-            <Button Name="BtnOutputFolder" Grid.Column="0" Content="输出文件夹" Style="{StaticResource StyleButtonCommon}"/>
-            <TextBox Name="TxtOutputPath" Grid.Column="1" Style="{StaticResource StyleTextReadOnly}"/>
+            <Button Name="BtnOutputFolder" Grid.Column="0" Content="输出文件夹" Style="{StaticResource StyleButtonCommon}"
+                    Command="{Binding ChooseOutputFolder}"/>
+            <TextBox Name="TxtOutputPath" Grid.Column="1" Style="{StaticResource StyleTextReadOnly}"
+                     Text="{Binding OutputPath}"/>
             <CheckBox Name="ChkOpenOutputFolder" Grid.Column="2" Content="完成后打开输出文件夹"
                       Style="{StaticResource StyleCheckBoxCommon}"/>
             <Button Name="BtnStartProcess" Grid.Column="3" Content="全部处理" Width="150"
                     Style="{StaticResource StyleButtonCommon}" Foreground="Blue" FontWeight="Bold"/>
         </Grid>
-        <TextBox Name="TxtStatus" Grid.Row="4" Style="{StaticResource StyleTextMultiLine}" Text="{Binding StatusText}"/>
+        <TextBox Name="TxtStatus" Grid.Row="4" Style="{StaticResource StyleTextMultiLine}"
+                 Text="{Binding StatusMessage}"/>
     </Grid>
 </Window>
