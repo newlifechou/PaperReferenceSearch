@@ -181,12 +181,35 @@ namespace Experiment
         /// </summary>
         /// <param name="jobList"></param>
         /// <param name="filePath"></param>
-        public void OutputAll(JobList jobList, string newFilePath)
+        public void Output(JobList jobList, string newFilePath, OutputType outputType)
         {
             DocX doc = DocX.Create(newFilePath);
+
+            //插入标题
+            string page_title = "";
+            if (outputType == OutputType.All)
+            {
+                page_title = "附件2 SCI-E引用 [自引+他引]";
+            }
+            else if (outputType == OutputType.Self)
+            {
+                page_title = "附件2 SCI-E引用 [自引]";
+            }
+            else
+            {
+                page_title = "附件2 SCI-E引用 [他引]";
+            }
+            doc.InsertParagraph(page_title, false, new Formatting() { Size = 14 });
+
+            #region 预设样式
             Formatting formatting = new Formatting();
             formatting.FontFamily = new Font("宋体");
             formatting.Size = 9;
+
+            Formatting formattingBold = new Formatting();
+            formattingBold.FontFamily = new Font("宋体");
+            formattingBold.Size = 9;
+            formattingBold.Bold = true;
 
             Formatting formattingUnderLine = new Formatting();
             formatting.FontFamily = new Font("宋体");
@@ -197,57 +220,89 @@ namespace Experiment
             formatting.FontFamily = new Font("宋体");
             formattingBGYellow.Size = 9;
             formattingBGYellow.Highlight = Highlight.yellow;
+            #endregion
 
             string tempPara;
-            for (int i = 0; i < jobList.Jobs.Count; i++)
+            int master_Counter = 1;
+            int reference_Counter = 1;
+            foreach (var job in jobList.Jobs)
             {
-                int ref_count = jobList.Jobs[i].References.Count;
-                int ref_self_count = jobList.Jobs[i].References.Where(r =>
+                int ref_count = job.References.Count;
+                int ref_self_count = job.References.Where(r =>
                                                 r.ReferenceType == PaperReferenceType.Self).Count();
                 int ref_other_count = ref_count - ref_self_count;
-                tempPara = $"{i + 1}.被引文献:(被引{ref_count}自引{ref_self_count}他引{ref_other_count})";
-                doc.InsertParagraph(tempPara, false, formatting);
+                tempPara = $"{master_Counter}.被引文献:(被引{ref_count}自引{ref_self_count}他引{ref_other_count})";
+                doc.InsertParagraph(tempPara, false, formattingBold);
 
-                foreach (var paragraph in jobList.Jobs[i].Master.Paragraphs)
+                master_Counter++;
+
+                foreach (var paragraph in job.Master.Paragraphs)
                 {
                     doc.InsertParagraph($"{paragraph.Key}:{paragraph.Value}", false, formatting);
                 }
 
-                doc.InsertParagraph("引用文献:", false, formatting);
+                doc.InsertParagraph("引用文献:", false, formattingBold);
+
+                //这里要对引用文献类型进行区分
+
+                reference_Counter = 1;
                 //遍历References
-                for (int j = 0; j < jobList.Jobs[i].References.Count; j++)
+                foreach (var reference in job.References)
                 {
-                    tempPara = $"第{j + 1}条，共{ref_count}条";
-                    doc.InsertParagraph(tempPara, false, formatting);
-                    PaperReferenceType referenceType = jobList.Jobs[i].References[j].ReferenceType;
-                    foreach (var paragraph in jobList.Jobs[i].References[j].Paragraphs)
+                    PaperReferenceType referenceType = reference.ReferenceType;
+                    if (outputType == OutputType.All)
                     {
-                        if (referenceType == PaperReferenceType.Self && paragraph.Key == "标题")
+                        tempPara = $"第{reference_Counter}条，共{ref_count}条";
+                        doc.InsertParagraph(tempPara, false, formatting);
+
+                        foreach (var paragraph in reference.Paragraphs)
                         {
-                            doc.InsertParagraph($"{paragraph.Key}:{paragraph.Value}",
-                                false, formattingBGYellow);
+                            if (referenceType == PaperReferenceType.Self && paragraph.Key == "标题")
+                            {
+                                doc.InsertParagraph($"{paragraph.Key}:{paragraph.Value}",
+                                    false, formattingBGYellow);
+                            }
+                            else
+                            {
+                                doc.InsertParagraph($"{paragraph.Key}:{paragraph.Value}", false, formatting);
+                            }
                         }
-                        else
-                        {
-                            doc.InsertParagraph($"{paragraph.Key}:{paragraph.Value}", false, formatting);
-                        }
+                        reference_Counter++;
                     }
+                    else if (outputType == OutputType.Self && referenceType == PaperReferenceType.Self)
+                    {
+                        tempPara = $"第{reference_Counter}条，共{ref_self_count}条";
+                        doc.InsertParagraph(tempPara, false, formatting);
+                        foreach (var paragraph in reference.Paragraphs)
+                        {
+                            if (referenceType == PaperReferenceType.Self)
+                            {
+                                doc.InsertParagraph($"{paragraph.Key}:{paragraph.Value}", false, formatting);
+                            }
+                        }
+                        reference_Counter++;
+
+                    }
+                    else if (outputType == OutputType.Other && referenceType == PaperReferenceType.Other)
+                    {
+                        tempPara = $"第{reference_Counter}条，共{ref_other_count}条";
+                        doc.InsertParagraph(tempPara, false, formatting);
+                        foreach (var paragraph in reference.Paragraphs)
+                        {
+                            if (referenceType == PaperReferenceType.Other)
+                            {
+                                doc.InsertParagraph($"{paragraph.Key}:{paragraph.Value}", false, formatting);
+                            }
+                        }
+                        reference_Counter++;
+                    }
+
                 }
 
             }
 
             doc.Save();
             doc.Dispose();
-        }
-
-        public void OutputSelfReference(JobList jobList, string newFilePath)
-        {
-
-        }
-
-        public void OutputOtherReference(JobList jobList, string newFilePath)
-        {
-
         }
 
 

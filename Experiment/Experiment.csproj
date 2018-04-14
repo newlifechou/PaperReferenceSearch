@@ -49,6 +49,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="OutputType.cs" />
     <Compile Include="Paper.cs" />
     <Compile Include="JobUnit.cs" />
     <Compile Include="PaperProcess.cs" />

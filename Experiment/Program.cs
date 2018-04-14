@@ -33,13 +33,15 @@ namespace Experiment
             {
                 Console.WriteLine($"文献[{job.Master.Paragraphs["标题"].Trim()}]");
                 //Console.WriteLine(job.Master.Paragraphs["作者"]);
-                int self_ref_count = job.References.Where(i => 
+                int self_ref_count = job.References.Where(i =>
                                         i.ReferenceType == PaperReferenceType.Self).Count();
                 Console.WriteLine($"共被引用{job.References.Count},自引有{job.References.Count - self_ref_count}，他引{self_ref_count},");
             }
 
 
-            process.OutputAll(jobList, "data.docx");
+            process.Output(jobList, "dataAll.docx", OutputType.All);
+            process.Output(jobList, "dataSelf.docx", OutputType.Self);
+            process.Output(jobList, "dataOther.docx", OutputType.Other);
             Console.WriteLine("输出到docx文件");
 
             Console.WriteLine("done");
