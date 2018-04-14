@@ -15,10 +15,10 @@ namespace Experiment
     {
         public Paper()
         {
-            ReferenceType = "";
+            ReferenceType = PaperReferenceType.UnSet;
             Paragraphs = new Dictionary<string, string>();
         }
-        public string ReferenceType { get; set; }
+        public PaperReferenceType ReferenceType { get; set; }
         public Dictionary<string, string> Paragraphs;
 
         public void Add(string prefix, string content)

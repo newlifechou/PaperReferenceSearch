@@ -14,6 +14,14 @@ namespace Experiment
         {
             string filePath = Path.Combine(Environment.CurrentDirectory, "全例.docx");
             PaperProcess process = new PaperProcess();
+
+            if (!process.IsFormatOK(filePath))
+            {
+                Console.WriteLine("格式不正确，被引文献标记和引用文献标记数目不相等");
+                return;
+            }
+            Console.WriteLine("格式正确");
+
             JobList jobList = process.Resolve(filePath);
             Console.WriteLine($"共检索到{jobList.Jobs.Count}篇论文");
 
@@ -25,9 +33,14 @@ namespace Experiment
             {
                 Console.WriteLine($"文献[{job.Master.Paragraphs["标题"].Trim()}]");
                 //Console.WriteLine(job.Master.Paragraphs["作者"]);
-                int self_ref_count = job.References.Where(i => i.ReferenceType != "自引").Count();
+                int self_ref_count = job.References.Where(i => 
+                                        i.ReferenceType == PaperReferenceType.Self).Count();
                 Console.WriteLine($"共被引用{job.References.Count},自引有{job.References.Count - self_ref_count}，他引{self_ref_count},");
             }
+
+
+            process.OutputAll(jobList, "data.docx");
+            Console.WriteLine("输出到docx文件");
 
             Console.WriteLine("done");
             Console.Read();

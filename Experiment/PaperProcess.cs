@@ -11,6 +11,21 @@ namespace Experiment
     public class PaperProcess
     {
         /// <summary>
+        /// 检查
+        /// </summary>
+        /// <param name="filePath"></param>
+        /// <returns></returns>
+        public bool IsFormatOK(string filePath)
+        {
+            bool result = true;
+            DocX doc = DocX.Load(filePath);
+            int count1 = doc.FindAll("被引文献").Count;
+            int count2 = doc.FindAll("引用文献").Count;
+            doc.Dispose();
+            result = count1 == count2;
+            return result;
+        }
+        /// <summary>
         /// 解析word文档docx
         /// </summary>
         /// <param name="filePath"></param>
@@ -149,11 +164,11 @@ namespace Experiment
                                       .Count();
                     if (result > 0)
                     {
-                        reference.ReferenceType = "自引";
+                        reference.ReferenceType = PaperReferenceType.Self;
                     }
                     else
                     {
-                        reference.ReferenceType = "他引";
+                        reference.ReferenceType = PaperReferenceType.Other;
                     }
                 }
 
@@ -166,10 +181,76 @@ namespace Experiment
         /// </summary>
         /// <param name="jobList"></param>
         /// <param name="filePath"></param>
-        public void Output(JobList jobList,string filePath)
+        public void OutputAll(JobList jobList, string newFilePath)
+        {
+            DocX doc = DocX.Create(newFilePath);
+            Formatting formatting = new Formatting();
+            formatting.FontFamily = new Font("宋体");
+            formatting.Size = 9;
+
+            Formatting formattingUnderLine = new Formatting();
+            formatting.FontFamily = new Font("宋体");
+            formattingUnderLine.Size = 9;
+            formattingUnderLine.UnderlineStyle = UnderlineStyle.singleLine;
+
+            Formatting formattingBGYellow = new Formatting();
+            formatting.FontFamily = new Font("宋体");
+            formattingBGYellow.Size = 9;
+            formattingBGYellow.Highlight = Highlight.yellow;
+
+            string tempPara;
+            for (int i = 0; i < jobList.Jobs.Count; i++)
+            {
+                int ref_count = jobList.Jobs[i].References.Count;
+                int ref_self_count = jobList.Jobs[i].References.Where(r =>
+                                                r.ReferenceType == PaperReferenceType.Self).Count();
+                int ref_other_count = ref_count - ref_self_count;
+                tempPara = $"{i + 1}.被引文献:(被引{ref_count}自引{ref_self_count}他引{ref_other_count})";
+                doc.InsertParagraph(tempPara, false, formatting);
+
+                foreach (var paragraph in jobList.Jobs[i].Master.Paragraphs)
+                {
+                    doc.InsertParagraph($"{paragraph.Key}:{paragraph.Value}", false, formatting);
+                }
+
+                doc.InsertParagraph("引用文献:", false, formatting);
+                //遍历References
+                for (int j = 0; j < jobList.Jobs[i].References.Count; j++)
+                {
+                    tempPara = $"第{j + 1}条，共{ref_count}条";
+                    doc.InsertParagraph(tempPara, false, formatting);
+                    PaperReferenceType referenceType = jobList.Jobs[i].References[j].ReferenceType;
+                    foreach (var paragraph in jobList.Jobs[i].References[j].Paragraphs)
+                    {
+                        if (referenceType == PaperReferenceType.Self && paragraph.Key == "标题")
+                        {
+                            doc.InsertParagraph($"{paragraph.Key}:{paragraph.Value}",
+                                false, formattingBGYellow);
+                        }
+                        else
+                        {
+                            doc.InsertParagraph($"{paragraph.Key}:{paragraph.Value}", false, formatting);
+                        }
+                    }
+                }
+
+            }
+
+            doc.Save();
+            doc.Dispose();
+        }
+
+        public void OutputSelfReference(JobList jobList, string newFilePath)
         {
 
         }
+
+        public void OutputOtherReference(JobList jobList, string newFilePath)
+        {
+
+        }
+
+
 
     }
 }
