@@ -136,6 +136,12 @@
     <None Include="DataSample\全例1.docx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="DataSample\单例无效2.docx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="DataSample\单例无效.docx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="DataSample\单例.docx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

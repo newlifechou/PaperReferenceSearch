@@ -22,12 +22,73 @@ namespace PaperReferenceSearch
             statusMsg = new StringBuilder();
             inputPath = System.IO.Path.Combine(Environment.CurrentDirectory, "DataSample");
             outputPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+            canOpenOutputFolder = false;
 
             LoadInputFiles();
 
             ChooseInputFolder = new RelayCommand(ActionChooseInputFolder);
             ChooseOutputFolder = new RelayCommand(ActionChooseOutputFolder);
             OpenDataFile = new RelayCommand<DataFile>(ActionOpenDataFile);
+            Start = new RelayCommand(ActionStart, CanStart);
+        }
+
+        private void ActionStart()
+        {
+            if (InputFiles.Where(i => i.ValidateState).Count() == 0)
+            {
+                AppendStatusMessage("输入文件夹中的可以处理的文件个数为0");
+                return;
+            }
+
+            var jobs = InputFiles.Where(i => i.ValidateState);
+
+            try
+            {
+                PaperProcess service = new PaperProcess();
+                AppendStatusMessage("####开始处理格式规范的有效文件");
+                var mainFolder = Path.Combine(OutputPath, DateTime.Now.ToString("yyMMdd"));
+                foreach (var file in jobs)
+                {
+                    var joblist = service.Resolve(file.FullName);
+
+                    service.Analyse(joblist);
+
+                    var fileNameNoExtension = Path.GetFileNameWithoutExtension(file.FullName);
+                    if (!Directory.Exists(mainFolder))
+                    {
+                        Directory.CreateDirectory(mainFolder);
+                    }
+
+                    var output_all = Path.Combine(mainFolder, $"{fileNameNoExtension}_All.docx");
+                    service.Output(joblist, output_all, OutputType.All);
+                    AppendStatusMessage($"输出文件:{output_all}");
+
+                    var output_self = Path.Combine(mainFolder, $"{fileNameNoExtension}_Self.docx");
+                    service.Output(joblist, output_self, OutputType.Self);
+                    AppendStatusMessage($"输出文件:{output_self}");
+
+                    var output_other = Path.Combine(mainFolder, $"{fileNameNoExtension}_Other.docx");
+                    service.Output(joblist, output_other, OutputType.Other);
+                    AppendStatusMessage($"输出文件:{output_other}");
+                }
+                AppendStatusMessage("处理完毕");
+
+                if (CanOpenOutputFolder)
+                {
+                    System.Diagnostics.Process.Start(mainFolder);
+                }
+
+            }
+            catch (Exception ex)
+            {
+                AppendStatusMessage(ex.Message);
+            }
+
+        }
+
+        private bool CanStart()
+        {
+            return InputFiles.Count > 0;
         }
 
         private void ActionOpenDataFile(DataFile file)
@@ -38,7 +99,7 @@ namespace PaperReferenceSearch
             }
             catch (Exception ex)
             {
-                AddStatusMessage(ex.Message);
+                AppendStatusMessage(ex.Message);
             }
         }
 
@@ -53,7 +114,7 @@ namespace PaperReferenceSearch
             else
             {
                 OutputPath = folderPath;
-                AddStatusMessage($"设置输出位置为{folderPath}");
+                AppendStatusMessage($"设置输出位置为{folderPath}");
             }
         }
 
@@ -72,7 +133,7 @@ namespace PaperReferenceSearch
             else
             {
                 InputPath = folderPath;
-                AddStatusMessage($"设置输入数据文件夹为{InputPath}");
+                AppendStatusMessage($"设置输入数据文件夹为{InputPath}");
                 LoadInputFiles();
             }
 
@@ -80,6 +141,7 @@ namespace PaperReferenceSearch
 
         private void LoadInputFiles()
         {
+            statusMsg.Clear();
             if (Directory.Exists(InputPath))
             {
                 PaperProcess service = new PaperProcess();
@@ -96,7 +158,7 @@ namespace PaperReferenceSearch
                         ValidateState = service.IsFormatOK(fileName)
                     };
                     InputFiles.Add(tempData);
-                    AddStatusMessage($"添加了{fileName}");
+                    AppendStatusMessage($"添加了{fileName}");
                 }
             }
         }
@@ -146,18 +208,30 @@ namespace PaperReferenceSearch
             }
         }
 
-
+        public bool canOpenOutputFolder;
+        public bool CanOpenOutputFolder
+        {
+            get
+            {
+                return canOpenOutputFolder;
+            }
+            set
+            {
+                canOpenOutputFolder = value;
+                RaisePropertyChanged(nameof(CanOpenOutputFolder));
+            }
+        }
         #endregion
 
         #region 私有变量
         private StringBuilder statusMsg;
-        private void AddStatusMessage(string msg)
+        private void AppendStatusMessage(string msg)
         {
-            statusMsg.AppendLine(msg);
+            //statusMsg.AppendLine(msg);
+            statusMsg.Insert(0, $"{msg}\r\n");
             StatusMessage = statusMsg.ToString();
         }
         #endregion
-
 
         #region 公开命令
         public RelayCommand ChooseInputFolder { get; set; }

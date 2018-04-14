@@ -21,8 +21,9 @@ namespace Experiment
             DocX doc = DocX.Load(filePath);
             int count1 = doc.FindAll("被引文献").Count;
             int count2 = doc.FindAll("引用文献").Count;
+            int count3 = doc.FindAll("作者").Count;
             doc.Dispose();
-            if (count1 == 0 || count2 == 0) return false;
+            if (count1 == 0 || count2 == 0 || count3 == 0) return false;
             result = count1 == count2;
             return result;
         }
