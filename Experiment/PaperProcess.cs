@@ -304,7 +304,7 @@ namespace Experiment
                             doc.InsertParagraph(tempPara, false, formatting);
                             if (reference.MatchedAuthors.Count > 0)
                             {
-                                doc.InsertParagraph("匹配上的作者缩写列表", false, formattingBold);
+                                doc.InsertParagraph($"匹配上的作者共{reference.MatchedAuthors.Count}人", false, formattingBold);
                                 string matched_authors = "";
                                 reference.MatchedAuthors.ForEach(i =>
                                 {
