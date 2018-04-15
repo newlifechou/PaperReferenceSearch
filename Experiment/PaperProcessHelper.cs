@@ -10,21 +10,50 @@ namespace Experiment
     public static class PaperProcessHelper
     {
 
-        public static bool IsFormatOK(string filePath)
+        public static ValidResult IsFormatOK(string filePath)
         {
             using (DocX doc = DocX.Load(filePath))
             {
+                //判断是否都是有效段落
+                foreach (var paragraph in doc.Paragraphs)
+                {
+                    if (!CheckFormat(paragraph.Text.Trim()))
+                    {
+                        return new ValidResult(false, "段落不是[空][包含:][包含附件][包含被引文献][包含引用文献][以第开头]");
+                    }
+                }
+
+                //判断是否包含【作者】字段
+                int count3 = doc.FindAll("作者").Count;
+                if (count3 == 0)
+                    return new ValidResult(false, "没有包含作者段落");
+                //判断被引文献和引用文献是否成对
                 int count1 = doc.FindAll("被引文献").Count;
                 int count2 = doc.FindAll("引用文献").Count;
-                int count3 = doc.FindAll("作者").Count;
-                doc.Dispose();
-                if (count1 == 0 || count2 == 0 || count3 == 0) return false;
+                if (count1 == 0 || count2 == 0)
+                    return new ValidResult(false, "没有包含被引文献或者引用文献段落");
+                if (count1 != count2)
+                    return new ValidResult(false, "被引文献和引用文献数目不相同");
 
-                return count1 == count2;
+                return new ValidResult(true, "");
             }
         }
 
-
+        /// <summary>
+        /// 检查段落是否符合要求
+        /// </summary>
+        /// <param name="p"></param>
+        /// <returns></returns>
+        private static bool CheckFormat(string p)
+        {
+            var assert1 = string.IsNullOrEmpty(p)
+                || p.Contains("附件")
+                || p.Contains("被引文献")
+                || p.Contains("引用文献")
+                || p.Contains(":")
+                || p.StartsWith("第");
+            return assert1;
+        }
 
         /// <summary>
         /// 利用冒号分隔段落成两个字符串

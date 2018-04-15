@@ -50,12 +50,12 @@ namespace PaperReferenceSearch
             try
             {
                 isStartEnable = false;
-                if (InputFiles.Where(i => i.ValidateState).Count() == 0)
+                if (InputFiles.Where(i => i.ValidState).Count() == 0)
                 {
                     AppendStatusMessage("输入文件夹中的可以处理的文件个数为0");
                     return;
                 }
-                var jobs = InputFiles.Where(i => i.ValidateState);
+                var jobs = InputFiles.Where(i => i.ValidState);
                 Stopwatch sw = new Stopwatch();
                 sw.Reset();
                 sw.Start();
@@ -180,7 +180,6 @@ namespace PaperReferenceSearch
             statusMsg.Clear();
             if (Directory.Exists(InputPath))
             {
-                PaperProcess service = new PaperProcess();
                 InputFiles.Clear();
                 foreach (var fileName in Directory.GetFiles(InputPath, "*.docx"))
                 {
@@ -192,7 +191,9 @@ namespace PaperReferenceSearch
                         Name = tempFile.Name,
                         FullName = tempFile.FullName
                     };
-                    tempData.ValidateState = service.IsFormatOK(tempFile.FullName);
+                    var valid_result = PaperProcessHelper.IsFormatOK(tempFile.FullName);
+                    tempData.ValidState = valid_result.IsValid;
+                    tempData.ValidInformation = valid_result.ValidInformation;
 
                     InputFiles.Add(tempData);
                     AppendStatusMessage($"添加了{fileName}");
