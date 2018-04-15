@@ -13,12 +13,13 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
-            <RowDefinition/>
+            <RowDefinition Height="184*"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
-            <RowDefinition/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="185*"/>
         </Grid.RowDefinitions>
-        <TextBlock Grid.Row="0" Text="请执行下面的操作" Style="{StaticResource StyleTextBlockCommon}"/>
+        <TextBlock Grid.Row="0" Text="确定所有文件均符合规范格式后，请执行下面的操作" Style="{StaticResource StyleTextBlockCommon}"/>
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="auto"/>
@@ -30,7 +31,7 @@
             <TextBox Name="TxtInputPath" Grid.Column="1" Style="{StaticResource StyleTextReadOnly}"
                      Text="{Binding InputPath}"/>
             <Button Name="BtnStandardFormat" Grid.Column="2" Content="什么是规范格式?" Style="{StaticResource StyleButtonCommon}"
-                    />
+                    Click="BtnStandardFormat_Click"/>
         </Grid>
         <DataGrid Name="DgInputFiles" Grid.Row="2" Style="{StaticResource StyleDataGridCommon}"
                   ItemsSource="{Binding InputFiles}">
@@ -44,10 +45,10 @@
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
-                <DataGridTextColumn Header="文件名" Binding="{Binding Name}" Width="300"
+                <DataGridTextColumn Header="文件名" Binding="{Binding Name}" Width="500"
                                     ElementStyle="{StaticResource StyleTextBlockCommonDG}"/>
-                <DataGridTextColumn Header="是否规范" Binding="{Binding ValidateState}"
-                                    ElementStyle="{StaticResource StyleTextBlockCommonDG}"/>
+                <!--<DataGridTextColumn Header="是否规范" Binding="{Binding ValidateState}"
+                                    ElementStyle="{StaticResource StyleTextBlockCommonDG}"/>-->
             </DataGrid.Columns>
         </DataGrid>
         <Grid Grid.Row="3">
@@ -79,7 +80,9 @@
                     Style="{StaticResource StyleButtonCommon}" Foreground="Blue" FontWeight="Bold"
                     Command="{Binding Start}"/>
         </Grid>
-        <TextBox Name="TxtStatus" Grid.Row="5" Style="{StaticResource StyleTextMultiLine}"
+        <ProgressBar Grid.Row="5" Height="5" Maximum="100" Minimum="0" Margin="3 0"
+                     Value="{Binding CurrentProgress}"/>
+        <TextBox Name="TxtStatus" Grid.Row="6" Style="{StaticResource StyleTextMultiLine}"
                  Text="{Binding StatusMessage}"/>
     </Grid>
 </Window>

@@ -25,6 +25,8 @@ namespace PaperReferenceSearch
             outputPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
             canOpenOutputFolder = true;
             IsUnderLine = false;
+            CurrentProgress = 0;
+            isStartEnable = true;
 
             LoadInputFiles();
 
@@ -36,22 +38,39 @@ namespace PaperReferenceSearch
 
         private void ActionStart()
         {
-            if (InputFiles.Where(i => i.ValidateState).Count() == 0)
-            {
-                AppendStatusMessage("输入文件夹中的可以处理的文件个数为0");
-                return;
-            }
+            //同步版本
+            //DoJobTask(jobs);
+            //异步版本
+            Task task = new Task(DoJobTask);
+            task.Start();
+        }
 
-            var jobs = InputFiles.Where(i => i.ValidateState);
-
+        private void DoJobTask()
+        {
             try
             {
+                isStartEnable = false;
+                if (InputFiles.Where(i => i.ValidateState).Count() == 0)
+                {
+                    AppendStatusMessage("输入文件夹中的可以处理的文件个数为0");
+                    return;
+                }
+                var jobs = InputFiles.Where(i => i.ValidateState);
                 Stopwatch sw = new Stopwatch();
                 sw.Reset();
                 sw.Start();
                 PaperProcess service = new PaperProcess();
                 AppendStatusMessage("####开始处理格式规范的有效文件");
                 var mainFolder = Path.Combine(OutputPath, DateTime.Now.ToString("yyMMdd"));
+                if (Directory.Exists(mainFolder))
+                {
+                    Directory.Delete(mainFolder, true);
+                }
+                Directory.CreateDirectory(mainFolder);
+
+                int job_total_count = jobs.Count();
+                int job_counter = 0;
+
                 foreach (var file in jobs)
                 {
                     var joblist = service.Resolve(file.FullName);
@@ -59,13 +78,9 @@ namespace PaperReferenceSearch
                     service.Analyse(joblist);
 
                     var fileNameNoExtension = Path.GetFileNameWithoutExtension(file.FullName);
-                    if (!Directory.Exists(mainFolder))
-                    {
-                        Directory.CreateDirectory(mainFolder);
-                    }
 
                     //输出全类型
-                    var output_all = Path.Combine(mainFolder, $"{fileNameNoExtension}_自引_他引.docx");
+                    var output_all = Path.Combine(mainFolder, $"{fileNameNoExtension}_全.docx");
                     service.Output(joblist, output_all, OutputType.All, IsUnderLine);
                     AppendStatusMessage($"输出文件:{output_all}");
                     //输出自引类型
@@ -81,26 +96,34 @@ namespace PaperReferenceSearch
                         Path.Combine(mainFolder, $"{fileNameNoExtension}_自引_包括匹配到的作者.docx");
                     service.Output(joblist, output_self_with_matched_authors, OutputType.SelfWithMatchedAuthors, IsUnderLine);
                     AppendStatusMessage($"输出文件:{output_self_with_matched_authors}");
+
+                    //记录进度
+                    job_counter++;
+                    CurrentProgress = (int)(job_counter * 1.0f / job_total_count * 100);
+                    Debug.WriteLine($"{CurrentProgress}-{job_counter}-{job_total_count}");
                 }
                 sw.Stop();
-                AppendStatusMessage($"处理完毕，共耗时{sw.ElapsedMilliseconds}ms");
-
+                AppendStatusMessage($"处理完毕，共处理{job_total_count}个文件，耗时{sw.ElapsedMilliseconds}ms");
+                AppendStatusMessage($"每个输入文件共有四个不同类型的输出文件，选择自己需要的类型即可");
                 if (CanOpenOutputFolder)
                 {
                     Process.Start(mainFolder);
                 }
-
             }
+
             catch (Exception ex)
             {
                 AppendStatusMessage(ex.Message);
             }
-
+            finally
+            {
+                isStartEnable = true;
+            }
         }
 
         private bool CanStart()
         {
-            return InputFiles.Count > 0;
+            return InputFiles.Count > 0 && isStartEnable;
         }
 
         private void ActionOpenDataFile(DataFile file)
@@ -146,6 +169,7 @@ namespace PaperReferenceSearch
             {
                 InputPath = folderPath;
                 AppendStatusMessage($"设置输入数据文件夹为{InputPath}");
+
                 LoadInputFiles();
             }
 
@@ -166,12 +190,12 @@ namespace PaperReferenceSearch
                     DataFile tempData = new DataFile()
                     {
                         Name = tempFile.Name,
-                        FullName = tempFile.FullName,
-                        ValidateState = service.IsFormatOK(fileName)
+                        FullName = tempFile.FullName
                     };
                     InputFiles.Add(tempData);
                     AppendStatusMessage($"添加了{fileName}");
                 }
+                AppendStatusMessage($"共添加了{InputFiles.Count}个输入文件");
             }
         }
 
@@ -249,9 +273,23 @@ namespace PaperReferenceSearch
             }
         }
 
+        public int currentProgress;
+        public int CurrentProgress
+        {
+            get
+            {
+                return currentProgress;
+            }
+            set
+            {
+                currentProgress = value;
+                RaisePropertyChanged(nameof(CurrentProgress));
+            }
+        }
         #endregion
 
         #region 私有变量
+        private bool isStartEnable;
         private StringBuilder statusMsg;
         private void AppendStatusMessage(string msg)
         {

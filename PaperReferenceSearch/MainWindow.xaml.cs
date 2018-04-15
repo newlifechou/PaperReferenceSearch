@@ -33,5 +33,16 @@ namespace PaperReferenceSearch
             this.DataContext = new MainWindowViewModel();
         }
 
+        private void BtnStandardFormat_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                System.Diagnostics.Process.Start(System.IO.Path.Combine(Environment.CurrentDirectory, "文档规范说明.pdf"));
+            }
+            catch (Exception ex)
+            {
+                System.Windows.MessageBox.Show(ex.Message);
+            }
+        }
     }
 }
