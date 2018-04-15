@@ -19,7 +19,7 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="185*"/>
         </Grid.RowDefinitions>
-        <TextBlock Grid.Row="0" Text="确定所有文件均符合规范格式后，请执行下面的操作" Style="{StaticResource StyleTextBlockCommon}"/>
+        <TextBlock Grid.Row="0" Text="先确定所有文件均符合规范格式，再执行下面的操作" Style="{StaticResource StyleTextBlockCommon}"/>
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="auto"/>
@@ -47,8 +47,8 @@
                 </DataGridTemplateColumn>
                 <DataGridTextColumn Header="文件名" Binding="{Binding Name}" Width="500"
                                     ElementStyle="{StaticResource StyleTextBlockCommonDG}"/>
-                <!--<DataGridTextColumn Header="是否规范" Binding="{Binding ValidateState}"
-                                    ElementStyle="{StaticResource StyleTextBlockCommonDG}"/>-->
+                <DataGridTextColumn Header="是否规范" Binding="{Binding ValidateState}"
+                                    ElementStyle="{StaticResource StyleTextBlockCommonDG}"/>
             </DataGrid.Columns>
         </DataGrid>
         <Grid Grid.Row="3">

@@ -192,6 +192,8 @@ namespace PaperReferenceSearch
                         Name = tempFile.Name,
                         FullName = tempFile.FullName
                     };
+                    tempData.ValidateState = service.IsFormatOK(tempFile.FullName);
+
                     InputFiles.Add(tempData);
                     AppendStatusMessage($"添加了{fileName}");
                 }
