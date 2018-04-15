@@ -30,8 +30,8 @@ namespace PaperReferenceSearch
 
             LoadInputFiles();
 
-            ChooseInputFolder = new RelayCommand(ActionChooseInputFolder);
-            ChooseOutputFolder = new RelayCommand(ActionChooseOutputFolder);
+            ChooseInputFolder = new RelayCommand(ActionChooseInputFolder, () => isStartEnable);
+            ChooseOutputFolder = new RelayCommand(ActionChooseOutputFolder, () => isStartEnable);
             OpenDataFile = new RelayCommand<DataFile>(ActionOpenDataFile);
             Start = new RelayCommand(ActionStart, CanStart);
         }
