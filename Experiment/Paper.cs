@@ -17,7 +17,9 @@ namespace Experiment
         {
             ReferenceType = PaperReferenceType.UnSet;
             Paragraphs = new Dictionary<string, string>();
+            MatchedAuthors=new List<string>();
         }
+        public List<string> MatchedAuthors { get; set; }
         public PaperReferenceType ReferenceType { get; set; }
         public Dictionary<string, string> Paragraphs;
 

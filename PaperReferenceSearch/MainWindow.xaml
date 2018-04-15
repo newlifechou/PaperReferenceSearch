@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:PaperReferenceSearch"
         mc:Ignorable="d"
         Title="文献自引他引解析工具 v1.0.0.0"
-        Icon="Resource\Images\kiwi.png"
+        Icon="Resource\Images\Strawberry.png"
         WindowStartupLocation="CenterScreen"
         MinHeight="450" MinWidth="600" Width="800" Height="600">
     <Grid Background="{StaticResource brushBackground}">
@@ -59,7 +59,8 @@
             </Grid.ColumnDefinitions>
             <TextBlock Grid.Column="1" Text="默认使用作者姓名缩写进行对比" Style="{StaticResource StyleTextBlockCommon}"/>
             <CheckBox Grid.Column="2" Content="使用下划线标记自引文献标题(不勾使用黄色背景)"
-                      Style="{StaticResource StyleCheckBoxCommon}" />
+                      Style="{StaticResource StyleCheckBoxCommon}" 
+                      IsChecked="{Binding IsUnderLine,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>
             <CheckBox Grid.Column="3" Content="完成后打开输出文件夹"
                       Style="{StaticResource StyleCheckBoxCommon}" 
                       IsChecked="{Binding CanOpenOutputFolder,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>

@@ -39,9 +39,9 @@ namespace Experiment
             }
 
 
-            process.Output(jobList, "dataAll.docx", OutputType.All);
-            process.Output(jobList, "dataSelf.docx", OutputType.Self);
-            process.Output(jobList, "dataOther.docx", OutputType.Other);
+            process.Output(jobList, "dataAll.docx", OutputType.All,false);
+            process.Output(jobList, "dataSelf.docx", OutputType.Self,false);
+            process.Output(jobList, "dataOther.docx", OutputType.Other,false);
             Console.WriteLine("输出到docx文件");
 
             Console.WriteLine("done");

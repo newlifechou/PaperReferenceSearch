@@ -24,6 +24,7 @@ namespace PaperReferenceSearch
             inputPath = System.IO.Path.Combine(Environment.CurrentDirectory, "DataSample");
             outputPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
             canOpenOutputFolder = true;
+            IsUnderLine = false;
 
             LoadInputFiles();
 
@@ -63,17 +64,23 @@ namespace PaperReferenceSearch
                         Directory.CreateDirectory(mainFolder);
                     }
 
-                    var output_all = Path.Combine(mainFolder, $"{fileNameNoExtension}_All.docx");
-                    service.Output(joblist, output_all, OutputType.All);
+                    //输出全类型
+                    var output_all = Path.Combine(mainFolder, $"{fileNameNoExtension}_自引_他引.docx");
+                    service.Output(joblist, output_all, OutputType.All, IsUnderLine);
                     AppendStatusMessage($"输出文件:{output_all}");
-
-                    var output_self = Path.Combine(mainFolder, $"{fileNameNoExtension}_Self.docx");
-                    service.Output(joblist, output_self, OutputType.Self);
+                    //输出自引类型
+                    var output_self = Path.Combine(mainFolder, $"{fileNameNoExtension}_自引.docx");
+                    service.Output(joblist, output_self, OutputType.Self, IsUnderLine);
                     AppendStatusMessage($"输出文件:{output_self}");
-
-                    var output_other = Path.Combine(mainFolder, $"{fileNameNoExtension}_Other.docx");
-                    service.Output(joblist, output_other, OutputType.Other);
+                    //输出他引类型
+                    var output_other = Path.Combine(mainFolder, $"{fileNameNoExtension}_他引.docx");
+                    service.Output(joblist, output_other, OutputType.Other, IsUnderLine);
                     AppendStatusMessage($"输出文件:{output_other}");
+                    //输出自引包含匹配到的作者列表
+                    var output_self_with_matched_authors =
+                        Path.Combine(mainFolder, $"{fileNameNoExtension}_自引_包括匹配到的作者.docx");
+                    service.Output(joblist, output_self_with_matched_authors, OutputType.SelfWithMatchedAuthors, IsUnderLine);
+                    AppendStatusMessage($"输出文件:{output_self_with_matched_authors}");
                 }
                 sw.Stop();
                 AppendStatusMessage($"处理完毕，共耗时{sw.ElapsedMilliseconds}ms");
@@ -226,6 +233,22 @@ namespace PaperReferenceSearch
                 RaisePropertyChanged(nameof(CanOpenOutputFolder));
             }
         }
+
+        public bool isUnderLine;
+        public bool IsUnderLine
+        {
+
+            get
+            {
+                return isUnderLine;
+            }
+            set
+            {
+                isUnderLine = value;
+                RaisePropertyChanged(nameof(IsUnderLine));
+            }
+        }
+
         #endregion
 
         #region 私有变量

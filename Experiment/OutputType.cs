@@ -10,6 +10,7 @@ namespace Experiment
     {
         All,
         Self,
-        Other
+        Other,
+        SelfWithMatchedAuthors
     }
 }

@@ -48,8 +48,9 @@ namespace Experiment
             foreach (var p in doc.Paragraphs)
             {
                 string line = p.Text.Trim();
-                //空行跳过
-                if (string.IsNullOrEmpty(line))
+                //空行和无效行跳过
+                if (string.IsNullOrEmpty(line)
+                    || line.Contains("附件"))
                 {
                     continue;
                 }
@@ -161,17 +162,14 @@ namespace Experiment
                 {
                     p = reference.Paragraphs["作者"];
                     string ref_name = p;
-                    int result = names.Where(i => ref_name
-                                      .Contains(PaperProcessHelper.GetNameAbbr(i)))
-                                      .Count();
-                    if (result > 0)
-                    {
-                        reference.ReferenceType = PaperReferenceType.Self;
-                    }
-                    else
-                    {
-                        reference.ReferenceType = PaperReferenceType.Other;
-                    }
+                    var query = names.Where(i => ref_name
+                                      .Contains(PaperProcessHelper.GetNameAbbr(i)));
+
+                    reference.MatchedAuthors = query.ToList();
+
+                    //得到匹配到的数字
+                    int result = query.Count();
+                    reference.ReferenceType = result > 0 ? PaperReferenceType.Self : PaperReferenceType.Other;
                 }
 
             }
@@ -183,7 +181,7 @@ namespace Experiment
         /// </summary>
         /// <param name="jobList"></param>
         /// <param name="filePath"></param>
-        public void Output(JobList jobList, string newFilePath, OutputType outputType)
+        public void Output(JobList jobList, string newFilePath, OutputType outputType, bool isUnderLine)
         {
             DocX doc = DocX.Create(newFilePath);
 
@@ -261,8 +259,9 @@ namespace Experiment
                         {
                             if (referenceType == PaperReferenceType.Self && paragraph.Key == "标题")
                             {
+                                Formatting titleFormating = isUnderLine ? formattingUnderLine : formattingBGYellow;
                                 doc.InsertParagraph($"{paragraph.Key}:{paragraph.Value}",
-                                    false, formattingBGYellow);
+                                    false, titleFormating);
                             }
                             else
                             {
@@ -298,7 +297,30 @@ namespace Experiment
                         }
                         reference_Counter++;
                     }
+                    else if (outputType == OutputType.SelfWithMatchedAuthors && referenceType == PaperReferenceType.Self)
+                    {
+                        tempPara = $"第{reference_Counter}条，共{ref_self_count}条";
+                        doc.InsertParagraph(tempPara, false, formatting);
+                        if (reference.MatchedAuthors.Count > 0)
+                        {
+                            doc.InsertParagraph("匹配上的作者缩写列表", false, formattingBold);
+                            string matched_authors = "";
+                            reference.MatchedAuthors.ForEach(i =>
+                            {
+                                matched_authors += i + " ";
+                            });
+                            doc.InsertParagraph($"[{matched_authors}]", false, formatting);
+                        }
+                        foreach (var paragraph in reference.Paragraphs)
+                        {
+                            if (referenceType == PaperReferenceType.Self)
+                            {
+                                doc.InsertParagraph($"{paragraph.Key}:{paragraph.Value}", false, formatting);
+                            }
+                        }
+                        reference_Counter++;
 
+                    }
                 }
 
             }
