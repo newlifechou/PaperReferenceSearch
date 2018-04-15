@@ -34,7 +34,7 @@ namespace Experiment
             if (string.IsNullOrEmpty(n))
                 return null;
 
-            string[] names = n.Split(';');
+            string[] names = n.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
             return names;
         }
 

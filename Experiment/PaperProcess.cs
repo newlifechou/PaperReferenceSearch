@@ -308,7 +308,7 @@ namespace Experiment
                                 string matched_authors = "";
                                 reference.MatchedAuthors.ForEach(i =>
                                 {
-                                    matched_authors += i + " ";
+                                    matched_authors += i + ";";
                                 });
                                 doc.InsertParagraph($"[{matched_authors}]", false, formatting);
                             }

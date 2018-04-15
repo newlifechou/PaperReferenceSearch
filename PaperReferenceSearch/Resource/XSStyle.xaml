@@ -6,13 +6,69 @@
     <SolidColorBrush x:Key="brushWarning" Color="Wheat"/>
     <SolidColorBrush x:Key="brushHelp" Color="Green"/>
     <SolidColorBrush x:Key="brushError" Color="Red"/>
-
-    <Style x:Key="StyleButtonCommon" TargetType="Button">
+    <Style TargetType="Button" x:Key="btnBase">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type Button}">
+                    <Grid>
+                        <VisualStateManager.VisualStateGroups>
+                            <VisualStateGroup x:Name="CommonStates">
+                                <VisualStateGroup.Transitions>
+                                    <VisualTransition GeneratedDuration="0"/>
+                                    <VisualTransition From="Normal" GeneratedDuration="0:0:0.4" To="MouseOver">
+                                        <VisualTransition.GeneratedEasingFunction>
+                                            <BackEase EasingMode="EaseOut"/>
+                                        </VisualTransition.GeneratedEasingFunction>
+                                    </VisualTransition>
+                                </VisualStateGroup.Transitions>
+                                <VisualState x:Name="Normal"/>
+                                <VisualState x:Name="MouseOver">
+                                    <Storyboard>
+                                        <ColorAnimationUsingKeyFrames Storyboard.TargetProperty="(Shape.Fill).(SolidColorBrush.Color)" Storyboard.TargetName="rectangle">
+                                            <EasingColorKeyFrame KeyTime="0" Value="#FFC5C5E4"/>
+                                        </ColorAnimationUsingKeyFrames>
+                                    </Storyboard>
+                                </VisualState>
+                                <VisualState x:Name="Pressed">
+                                    <Storyboard>
+                                        <ColorAnimationUsingKeyFrames Storyboard.TargetProperty="(Shape.Fill).(SolidColorBrush.Color)" Storyboard.TargetName="rectangle">
+                                            <EasingColorKeyFrame KeyTime="0" Value="#FFC5C5E4"/>
+                                        </ColorAnimationUsingKeyFrames>
+                                        <ColorAnimationUsingKeyFrames Storyboard.TargetProperty="(Shape.Fill).(SolidColorBrush.Color)" Storyboard.TargetName="rectangle">
+                                            <EasingColorKeyFrame KeyTime="0" Value="#FF9898CD"/>
+                                        </ColorAnimationUsingKeyFrames>
+                                    </Storyboard>
+                                </VisualState>
+                                <VisualState x:Name="Disabled"></VisualState>
+                            </VisualStateGroup>
+                        </VisualStateManager.VisualStateGroups>
+                        <Rectangle x:Name="rectangle" Fill="#FFE2E2EE" Stroke="#004B8B"  StrokeThickness="1"/>
+                        <ContentControl x:Name="contentControl" Content="{TemplateBinding Content}" 
+                                        Margin="{TemplateBinding Padding}" VerticalAlignment="Center"
+                                        HorizontalAlignment="Center" SnapsToDevicePixels="True"/>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsFocused" Value="True"/>
+                        <Trigger Property="IsDefaulted" Value="True"/>
+                        <Trigger Property="IsMouseOver" Value="True"/>
+                        <Trigger Property="IsPressed" Value="True"/>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Trigger.Setters>
+                                <Setter Property="Fill" Value="#FFDBD2DB" TargetName="rectangle"/>
+                                <Setter Property="Foreground" Value="#FFBCB2BC" TargetName="contentControl"/>
+                            </Trigger.Setters>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <Style x:Key="StyleButtonCommon" TargetType="Button" BasedOn="{StaticResource btnBase}">
         <Setter Property="Margin" Value="3"/>
         <Setter Property="Padding" Value="5"/>
         <Setter Property="MinWidth" Value="80"/>
     </Style>
-    <Style x:Key="StyleButtonCommonDG" TargetType="Button">
+    <Style x:Key="StyleButtonCommonDG" TargetType="Button"  BasedOn="{StaticResource btnBase}">
         <Setter Property="Margin" Value="0"/>
         <Setter Property="Padding" Value="0 2"/>
         <Setter Property="MinWidth" Value="60"/>
