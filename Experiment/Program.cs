@@ -12,7 +12,7 @@ namespace Experiment
     {
         static void Main(string[] args)
         {
-            string filePath = Path.Combine(Environment.CurrentDirectory, "全例.docx");
+            string filePath = Path.Combine(Environment.CurrentDirectory, "样板输入.docx");
             PaperProcess process = new PaperProcess();
 
             if (!process.IsFormatOK(filePath))

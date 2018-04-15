@@ -11,7 +11,7 @@ using System.Windows;
 [assembly: AssemblyDescription("一个工具 用来处理规范格式的文献摘要来确定自引他引并输出要求格式文档")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("xs.zhou")]
-[assembly: AssemblyProduct("PaperReferenceSearch Kiwi Fruit")]
+[assembly: AssemblyProduct("PaperReferenceSearch xs.zhou")]
 [assembly: AssemblyCopyright("Copyright ©  2018")]
 [assembly: AssemblyTrademark("Imagination Studio")]
 [assembly: AssemblyCulture("")]

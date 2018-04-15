@@ -169,7 +169,7 @@ namespace PaperReferenceSearch
             {
                 InputPath = folderPath;
                 AppendStatusMessage($"设置输入数据文件夹为{InputPath}");
-
+                CurrentProgress = 0;
                 LoadInputFiles();
             }
 

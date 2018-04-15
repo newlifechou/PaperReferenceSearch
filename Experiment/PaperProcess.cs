@@ -188,18 +188,24 @@ namespace Experiment
             {
                 //插入标题
                 string page_title = "";
-                if (outputType == OutputType.All)
+                switch (outputType)
                 {
-                    page_title = "附件2 SCI-E引用 [自引+他引]";
+                    case OutputType.All:
+                        page_title = "附件2 SCI-E引用 [自引+他引]";
+                        break;
+                    case OutputType.Self:
+                        page_title = "附件2 SCI-E引用 [自引]";
+                        break;
+                    case OutputType.Other:
+                        page_title = "附件2 SCI-E引用 [他引]";
+                        break;
+                    case OutputType.SelfWithMatchedAuthors:
+                        page_title = "附件2 SCI-E引用 [自引-包含匹配到的作者]";
+                        break;
+                    default:
+                        break;
                 }
-                else if (outputType == OutputType.Self)
-                {
-                    page_title = "附件2 SCI-E引用 [自引]";
-                }
-                else
-                {
-                    page_title = "附件2 SCI-E引用 [他引]";
-                }
+
                 doc.InsertParagraph(page_title, false, new Formatting() { Size = 14 });
 
                 #region 预设样式
@@ -211,6 +217,12 @@ namespace Experiment
                 formattingBold.FontFamily = new Font("宋体");
                 formattingBold.Size = 9;
                 formattingBold.Bold = true;
+
+                Formatting formattingBoldBlue = new Formatting();
+                formattingBoldBlue.FontFamily = new Font("宋体");
+                formattingBoldBlue.Size = 9;
+                formattingBoldBlue.Bold = true;
+                formattingBoldBlue.FontColor = System.Drawing.Color.Blue;
 
                 Formatting formattingUnderLine = new Formatting();
                 formatting.FontFamily = new Font("宋体");
@@ -242,87 +254,223 @@ namespace Experiment
                         doc.InsertParagraph($"{paragraph.Key}:{paragraph.Value}", false, formatting);
                     }
 
-                    doc.InsertParagraph("引用文献:", false, formattingBold);
+                    string ref_title = "引用文献:";
+                    switch (outputType)
+                    {
+                        case OutputType.All:
+                            ref_title += "[全]";
+                            break;
+                        case OutputType.Self:
+                            ref_title += "[自引]";
+                            break;
+                        case OutputType.Other:
+                            ref_title += "[他引]";
+                            break;
+                        case OutputType.SelfWithMatchedAuthors:
+                            ref_title += "[自引]";
+                            break;
+                        default:
+                            break;
+                    }
 
+                    doc.InsertParagraph(ref_title, false, formattingBold);
+                    #region 处理引用文献
                     //这里要对引用文献类型进行区分
 
                     reference_Counter = 1;
-                    //遍历References
-                    foreach (var reference in job.References)
+                    switch (outputType)
                     {
-                        PaperReferenceType referenceType = reference.ReferenceType;
-                        if (outputType == OutputType.All)
-                        {
-                            tempPara = $"第{reference_Counter}条，共{ref_count}条";
-                            doc.InsertParagraph(tempPara, false, formatting);
+                        case OutputType.All:
+                            var misson_all = job.References;
+                            if (misson_all.Count > 0)
+                            {
+                                foreach (var reference in misson_all)
+                                {
+                                    tempPara = $"第{reference_Counter}条，共{ref_count}条";
+                                    doc.InsertParagraph(tempPara, false, formatting);
+                                    foreach (var paragraph in reference.Paragraphs)
+                                    {
+                                        //标记自引的标题
+                                        if (reference.ReferenceType == PaperReferenceType.Self && paragraph.Key == "标题")
+                                        {
+                                            Formatting titleFormating = isUnderLine ? formattingUnderLine : formattingBGYellow;
+                                            doc.InsertParagraph($"{paragraph.Key}:{paragraph.Value}",
+                                                false, titleFormating);
+                                        }
+                                        else
+                                        {
+                                            doc.InsertParagraph($"{paragraph.Key}:{paragraph.Value}", false, formatting);
+                                        }
+                                    }
+                                    reference_Counter++;
+                                }
+                            }
+                            else
+                            {
+                                doc.InsertParagraph("无", false, formatting);
+                            }
+                            break;
+                        case OutputType.Self:
+                            var misson_self = job.References.Where(r => r.ReferenceType == PaperReferenceType.Self);
+                            if (misson_self.Count() > 0)
+                            {
+                                foreach (var reference in misson_self)
+                                {
+                                    tempPara = $"第{reference_Counter}条，共{ref_self_count}条";
+                                    doc.InsertParagraph(tempPara, false, formatting);
+                                    foreach (var paragraph in reference.Paragraphs)
+                                    {
 
-                            foreach (var paragraph in reference.Paragraphs)
-                            {
-                                if (referenceType == PaperReferenceType.Self && paragraph.Key == "标题")
-                                {
-                                    Formatting titleFormating = isUnderLine ? formattingUnderLine : formattingBGYellow;
-                                    doc.InsertParagraph($"{paragraph.Key}:{paragraph.Value}",
-                                        false, titleFormating);
-                                }
-                                else
-                                {
-                                    doc.InsertParagraph($"{paragraph.Key}:{paragraph.Value}", false, formatting);
-                                }
-                            }
-                            reference_Counter++;
-                        }
-                        else if (outputType == OutputType.Self && referenceType == PaperReferenceType.Self)
-                        {
-                            tempPara = $"第{reference_Counter}条，共{ref_self_count}条";
-                            doc.InsertParagraph(tempPara, false, formatting);
-                            foreach (var paragraph in reference.Paragraphs)
-                            {
-                                if (referenceType == PaperReferenceType.Self)
-                                {
-                                    doc.InsertParagraph($"{paragraph.Key}:{paragraph.Value}", false, formatting);
-                                }
-                            }
-                            reference_Counter++;
+                                        doc.InsertParagraph($"{paragraph.Key}:{paragraph.Value}", false, formatting);
+                                    }
+                                    reference_Counter++;
 
-                        }
-                        else if (outputType == OutputType.Other && referenceType == PaperReferenceType.Other)
-                        {
-                            tempPara = $"第{reference_Counter}条，共{ref_other_count}条";
-                            doc.InsertParagraph(tempPara, false, formatting);
-                            foreach (var paragraph in reference.Paragraphs)
-                            {
-                                if (referenceType == PaperReferenceType.Other)
-                                {
-                                    doc.InsertParagraph($"{paragraph.Key}:{paragraph.Value}", false, formatting);
                                 }
                             }
-                            reference_Counter++;
-                        }
-                        else if (outputType == OutputType.SelfWithMatchedAuthors && referenceType == PaperReferenceType.Self)
-                        {
-                            tempPara = $"第{reference_Counter}条，共{ref_self_count}条";
-                            doc.InsertParagraph(tempPara, false, formatting);
-                            if (reference.MatchedAuthors.Count > 0)
+                            else
                             {
-                                doc.InsertParagraph($"匹配上的作者共{reference.MatchedAuthors.Count}人", false, formattingBold);
-                                string matched_authors = "";
-                                reference.MatchedAuthors.ForEach(i =>
-                                {
-                                    matched_authors += i + ";";
-                                });
-                                doc.InsertParagraph($"[{matched_authors}]", false, formatting);
+                                doc.InsertParagraph("无", false, formatting);
                             }
-                            foreach (var paragraph in reference.Paragraphs)
+                            break;
+                        case OutputType.Other:
+                            var misson_other = job.References.Where(r => r.ReferenceType == PaperReferenceType.Other);
+                            if (misson_other.Count() > 0)
                             {
-                                if (referenceType == PaperReferenceType.Self)
+                                foreach (var reference in misson_other)
                                 {
-                                    doc.InsertParagraph($"{paragraph.Key}:{paragraph.Value}", false, formatting);
+                                    tempPara = $"第{reference_Counter}条，共{ref_other_count}条";
+                                    doc.InsertParagraph(tempPara, false, formatting);
+                                    foreach (var paragraph in reference.Paragraphs)
+                                    {
+                                        doc.InsertParagraph($"{paragraph.Key}:{paragraph.Value}", false, formatting);
+                                    }
+                                    reference_Counter++;
                                 }
                             }
-                            reference_Counter++;
+                            else
+                            {
+                                doc.InsertParagraph("无", false, formatting);
+                            }
+                            break;
+                        case OutputType.SelfWithMatchedAuthors:
+                            var misson_self_with_authors = job.References.Where(r => r.ReferenceType == PaperReferenceType.Self);
+                            if (misson_self_with_authors.Count() > 0)
+                            {
+                                foreach (var reference in misson_self_with_authors)
+                                {
+                                    tempPara = $"第{reference_Counter}条，共{ref_self_count}条";
+                                    doc.InsertParagraph(tempPara, false, formatting);
 
-                        }
+                                    if (reference.MatchedAuthors.Count > 0)
+                                    {
+                                        doc.InsertParagraph($"匹配上的作者共{reference.MatchedAuthors.Count}人", false, formattingBoldBlue);
+                                        string matched_authors = "";
+                                        reference.MatchedAuthors.ForEach(i =>
+                                        {
+                                            matched_authors += i + ";";
+                                        });
+                                        doc.InsertParagraph($"[{matched_authors}]", false, formattingBoldBlue);
+                                    }
+                                    foreach (var paragraph in reference.Paragraphs)
+                                    {
+                                        if (reference.ReferenceType == PaperReferenceType.Self)
+                                        {
+                                            doc.InsertParagraph($"{paragraph.Key}:{paragraph.Value}", false, formatting);
+                                        }
+                                    }
+                                    reference_Counter++;
+                                }
+                            }
+                            else
+                            {
+                                doc.InsertParagraph("无", false, formatting);
+                            }
+                            break;
+                        default:
+                            break;
                     }
+
+
+
+
+                    //遍历References
+                    //foreach (var reference in job.References)
+                    //{
+                    //    PaperReferenceType referenceType = reference.ReferenceType;
+                    //    if (outputType == OutputType.All)
+                    //    {
+                    //        tempPara = $"第{reference_Counter}条，共{ref_count}条";
+                    //        doc.InsertParagraph(tempPara, false, formatting);
+
+                    //        foreach (var paragraph in reference.Paragraphs)
+                    //        {
+                    //            if (referenceType == PaperReferenceType.Self && paragraph.Key == "标题")
+                    //            {
+                    //                Formatting titleFormating = isUnderLine ? formattingUnderLine : formattingBGYellow;
+                    //                doc.InsertParagraph($"{paragraph.Key}:{paragraph.Value}",
+                    //                    false, titleFormating);
+                    //            }
+                    //            else
+                    //            {
+                    //                doc.InsertParagraph($"{paragraph.Key}:{paragraph.Value}", false, formatting);
+                    //            }
+                    //        }
+                    //        reference_Counter++;
+                    //    }
+                    //    else if (outputType == OutputType.Self && referenceType == PaperReferenceType.Self)
+                    //    {
+                    //        tempPara = $"第{reference_Counter}条，共{ref_self_count}条";
+                    //        doc.InsertParagraph(tempPara, false, formatting);
+                    //        foreach (var paragraph in reference.Paragraphs)
+                    //        {
+                    //            if (referenceType == PaperReferenceType.Self)
+                    //            {
+                    //                doc.InsertParagraph($"{paragraph.Key}:{paragraph.Value}", false, formatting);
+                    //            }
+                    //        }
+                    //        reference_Counter++;
+
+                    //    }
+                    //    else if (outputType == OutputType.Other && referenceType == PaperReferenceType.Other)
+                    //    {
+                    //        tempPara = $"第{reference_Counter}条，共{ref_other_count}条";
+                    //        doc.InsertParagraph(tempPara, false, formatting);
+                    //        foreach (var paragraph in reference.Paragraphs)
+                    //        {
+                    //            if (referenceType == PaperReferenceType.Other)
+                    //            {
+                    //                doc.InsertParagraph($"{paragraph.Key}:{paragraph.Value}", false, formatting);
+                    //            }
+                    //        }
+                    //        reference_Counter++;
+                    //    }
+                    //    else if (outputType == OutputType.SelfWithMatchedAuthors && referenceType == PaperReferenceType.Self)
+                    //    {
+                    //        tempPara = $"第{reference_Counter}条，共{ref_self_count}条";
+                    //        doc.InsertParagraph(tempPara, false, formatting);
+                    //        if (reference.MatchedAuthors.Count > 0)
+                    //        {
+                    //            doc.InsertParagraph($"匹配上的作者共{reference.MatchedAuthors.Count}人", false, formattingBoldBlue);
+                    //            string matched_authors = "";
+                    //            reference.MatchedAuthors.ForEach(i =>
+                    //            {
+                    //                matched_authors += i + ";";
+                    //            });
+                    //            doc.InsertParagraph($"[{matched_authors}]", false, formattingBoldBlue);
+                    //        }
+                    //        foreach (var paragraph in reference.Paragraphs)
+                    //        {
+                    //            if (referenceType == PaperReferenceType.Self)
+                    //            {
+                    //                doc.InsertParagraph($"{paragraph.Key}:{paragraph.Value}", false, formatting);
+                    //            }
+                    //        }
+                    //        reference_Counter++;
+
+                    //    }
+                    //}
+
+                    #endregion
 
                 }
 
