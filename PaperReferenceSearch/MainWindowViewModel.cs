@@ -104,7 +104,7 @@ namespace PaperReferenceSearch
                 }
                 sw.Stop();
                 AppendStatusMessage($"处理完毕，共处理{job_total_count}个文件，耗时{sw.ElapsedMilliseconds}ms");
-                AppendStatusMessage($"每个输入文件共有四个不同类型的输出文件，选择自己需要的类型即可");
+                AppendStatusMessage($"每个输入文件共有[全][仅自引][仅他引][仅自引(包含匹配上的作者)]四个不同类型的输出文件，选择自己需要的类型即可");
                 if (CanOpenOutputFolder)
                 {
                     Process.Start(mainFolder);
