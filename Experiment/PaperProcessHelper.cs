@@ -3,11 +3,29 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Xceed.Words.NET;
 
 namespace Experiment
 {
     public static class PaperProcessHelper
     {
+
+        public static bool IsFormatOK(string filePath)
+        {
+            using (DocX doc = DocX.Load(filePath))
+            {
+                int count1 = doc.FindAll("被引文献").Count;
+                int count2 = doc.FindAll("引用文献").Count;
+                int count3 = doc.FindAll("作者").Count;
+                doc.Dispose();
+                if (count1 == 0 || count2 == 0 || count3 == 0) return false;
+
+                return count1 == count2;
+            }
+        }
+
+
+
         /// <summary>
         /// 利用冒号分隔段落成两个字符串
         /// </summary>
