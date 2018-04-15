@@ -10,7 +10,7 @@ namespace PaperReferenceSearch.Model
     {
         public string Name { get; set; }
         public string FullName { get; set; }
-        public bool ValidState { get; set; }
+        public bool IsValid { get; set; }
         public string ValidInformation { get; set; }
     }
 }

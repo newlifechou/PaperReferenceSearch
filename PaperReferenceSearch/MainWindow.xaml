@@ -48,9 +48,9 @@
                 </DataGridTemplateColumn>
                 <DataGridTextColumn Header="文件名" Binding="{Binding Name}" Width="200"
                                     ElementStyle="{StaticResource StyleTextBlockCommonDG}"/>
-                <DataGridTextColumn Header="是否规范" Binding="{Binding ValidState}"
+                <DataGridTextColumn Header="是否规范" Binding="{Binding IsValid}"
                                     ElementStyle="{StaticResource StyleTextBlockCommonDG}"/>
-                <DataGridTextColumn Header="规范信息" Binding="{Binding ValidInformation}"
+                <DataGridTextColumn Header="不规范信息" Binding="{Binding ValidInformation}"
                                     ElementStyle="{StaticResource StyleTextBlockCommonDG}"/>
             </DataGrid.Columns>
         </DataGrid>
@@ -79,7 +79,7 @@
                     Command="{Binding ChooseOutputFolder}"/>
             <TextBox Name="TxtOutputPath" Grid.Column="1" Style="{StaticResource StyleTextReadOnly}"
                      Text="{Binding OutputPath}"/>
-            <Button Name="BtnStartProcess" Grid.Column="2" Content="全部处理" Width="150"
+            <Button Name="BtnStartProcess" Grid.Column="2" Content="开始处理" Width="150"
                     Style="{StaticResource StyleButtonCommon}" Foreground="Blue" FontWeight="Bold"
                     Command="{Binding Start}"/>
         </Grid>

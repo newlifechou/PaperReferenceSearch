@@ -50,12 +50,12 @@ namespace PaperReferenceSearch
             try
             {
                 isStartEnable = false;
-                if (InputFiles.Where(i => i.ValidState).Count() == 0)
+                if (InputFiles.Where(i => i.IsValid).Count() == 0)
                 {
                     AppendStatusMessage("输入文件夹中的可以处理的文件个数为0");
                     return;
                 }
-                var jobs = InputFiles.Where(i => i.ValidState);
+                var jobs = InputFiles.Where(i => i.IsValid);
                 Stopwatch sw = new Stopwatch();
                 sw.Reset();
                 sw.Start();
@@ -192,13 +192,17 @@ namespace PaperReferenceSearch
                         FullName = tempFile.FullName
                     };
                     var valid_result = PaperProcessHelper.IsFormatOK(tempFile.FullName);
-                    tempData.ValidState = valid_result.IsValid;
+                    tempData.IsValid = valid_result.IsValid;
                     tempData.ValidInformation = valid_result.ValidInformation;
 
                     InputFiles.Add(tempData);
                     AppendStatusMessage($"添加了{fileName}");
                 }
-                AppendStatusMessage($"共添加了{InputFiles.Count}个输入文件");
+                int valid_count = InputFiles.Where(i => i.IsValid).Count();
+                AppendStatusMessage($"共添加了{InputFiles.Count}个输入文件,有效文件共{valid_count}个");
+                AppendStatusMessage("程序仅辅助判定文件是否有效");
+                AppendStatusMessage("程序只处理有效文件，无效文件将跳过");
+
             }
         }
 
