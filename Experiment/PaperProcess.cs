@@ -156,23 +156,36 @@ namespace Experiment
             foreach (var job in jobList.Jobs)
             {
                 //找到Master的作者段落
-                p = job.Master.Paragraphs["作者"];
-                string[] names = PaperProcessHelper.DivideNames(p);
-
-                foreach (var reference in job.References)
+                if (job.Master.Paragraphs.ContainsKey("作者"))
                 {
-                    p = reference.Paragraphs["作者"];
-                    string ref_name = p;
-                    var query = names.Where(i => ref_name
-                                      .Contains(PaperProcessHelper.GetNameAbbr(i)));
+                    p = job.Master.Paragraphs["作者"];
+                    string[] names = PaperProcessHelper.DivideNames(p);
 
-                    reference.MatchedAuthors = query.ToList();
+                    foreach (var reference in job.References)
+                    {
+                        if (reference.Paragraphs.ContainsKey("作者"))
+                        {
+                            p = reference.Paragraphs["作者"];
+                            string ref_name = p;
+                            var query = names.Where(i => ref_name
+                                              .Contains(PaperProcessHelper.GetNameAbbr(i)));
 
-                    //得到匹配到的数字
-                    int result = query.Count();
-                    reference.ReferenceType = result > 0 ? PaperReferenceType.Self : PaperReferenceType.Other;
+                            reference.MatchedAuthors = query.ToList();
+
+                            //得到匹配到的数字
+                            int result = query.Count();
+                            reference.ReferenceType = result > 0 ? PaperReferenceType.Self : PaperReferenceType.Other;
+                        }
+                        else
+                        {
+                            reference.NoneStandardInformation = "此文献不包含作者段落";
+                        }
+                    }
                 }
-
+                else
+                {
+                    job.Master.NoneStandardInformation = "此文献不包含作者段落";
+                }
             }
 
         }

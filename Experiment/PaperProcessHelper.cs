@@ -80,7 +80,6 @@ namespace Experiment
         {
             if (string.IsNullOrEmpty(n))
                 return null;
-
             string[] names = n.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
             return names;
         }
@@ -94,9 +93,17 @@ namespace Experiment
         {
             if (string.IsNullOrEmpty(name))
                 return null;
-            int position = name.IndexOf("(");
-            string result = name.Substring(0, position);
-
+            string result;
+            //姓名包含括号的情况
+            if (name.Contains('('))
+            {
+                int position = name.IndexOf("(");
+                result = name.Substring(0, position);
+            }
+            else
+            {
+                result = name;
+            }
             return result.Trim();
         }
         /// <summary>

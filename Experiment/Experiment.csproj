@@ -60,6 +60,7 @@
     <Compile Include="PaperParagraph.cs" />
     <Compile Include="JobList.cs" />
     <Compile Include="PaperReferenceType.cs" />
+    <Compile Include="PublicWord.cs" />
     <Compile Include="Test.cs" />
     <Compile Include="ValidResult.cs" />
   </ItemGroup>
