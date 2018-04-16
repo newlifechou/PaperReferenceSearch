@@ -51,6 +51,7 @@ namespace PaperReferenceSearch
             try
             {
                 isStartEnable = false;
+                statusMsg.Clear();
                 if (InputFiles.Where(i => i.IsValid).Count() == 0)
                 {
                     AppendStatusMessage("输入文件夹中的可以处理的文件个数为0");

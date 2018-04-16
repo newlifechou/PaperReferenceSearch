@@ -55,12 +55,13 @@
                 </DataGridTemplateColumn>
                 <DataGridTextColumn Header="文件名" Binding="{Binding Name}" Width="200"
                                     ElementStyle="{StaticResource StyleTextBlockCommonDG}"/>
-                <DataGridTemplateColumn Header="是否规范">
+                <DataGridTemplateColumn Header="规范检查">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <TextBlock Text="{Binding IsValid,Converter={StaticResource converter_boolean_to_string}}"
                                        Style="{StaticResource StyleTextBlockCommonDG}"
                                        TextAlignment="Center"
+                                       Foreground="White"
                                        Background="{Binding IsValid,Converter={StaticResource converter_boolean_to_color}}"/>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>

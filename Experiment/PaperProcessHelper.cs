@@ -35,7 +35,7 @@ namespace Experiment
                 if (count2 == 0)
                     return new ValidResult(false, "不包含引用文献段落");
                 if (count1 != count2)
-                    return new ValidResult(false, "被引文献和引用文献数目不相同");
+                    return new ValidResult(false, "被引文献和引用文献数目不配对");
 
                 return new ValidResult(true, "");
             }
