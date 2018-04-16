@@ -26,23 +26,23 @@ namespace Experiment
                 return new ValidResult(false, "文档不能为空");
             }
 
-            if (lines.Where(i => !CheckParagraphValid(i)).Count() > 0)
-            {
-                return new ValidResult(false, "有段落不是[空] [包含：被引文献 引用文献] [以第开头]中一种");
-            }
+            //if (lines.Where(i => !CheckParagraphValid(i)).Count() > 0)
+            //{
+            //    return new ValidResult(false, "有段落不是[空] [包含：被引文献 引用文献] [以第开头]中一种");
+            //}
 
             //判断是否包含【作者】字段
             int count_authors = lines.Where(i => i.StartsWith("作者")).Count();
             if (count_authors == 0)
-                return new ValidResult(false, "不包含作者段落");
+                return new ValidResult(false, "包含0个作者段落");
 
             //判断被引文献和引用文献是否成对
             int count_be_ref = lines.Where(i => i.Contains("被引文献")).Count();
             int count_ref = lines.Where(i => i.Contains("引用文献")).Count();
             if (count_be_ref == 0)
-                return new ValidResult(false, "不包含被引文献段落");
+                return new ValidResult(false, "包含0个被引文献段落");
             if (count_ref == 0)
-                return new ValidResult(false, "不包含引用文献段落");
+                return new ValidResult(false, "包含0个引用文献段落");
             if (count_be_ref != count_ref)
                 return new ValidResult(false, "被引文献和引用文献数目不配对");
 
@@ -51,7 +51,7 @@ namespace Experiment
         }
 
         /// <summary>
-        /// 是否是要求的段落之一
+        /// 是否是可以处理的段落之一
         /// </summary>
         /// <param name="p"></param>
         /// <returns></returns>

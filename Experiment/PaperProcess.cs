@@ -278,28 +278,32 @@ namespace Experiment
                                                     r.ReferenceType == PaperReferenceType.Other).Count();
                     int ref_unset = job.References.Where(r =>
                                                     r.ReferenceType == PaperReferenceType.UnSet).Count();
+
+
+                    tempPara = $"{master_Counter}.被引文献:";
+                    var p_reference_title = doc.InsertParagraph(tempPara, false, formattingBold);
+                    string statistic = "";
                     switch (outputType)
                     {
                         case OutputType.All:
-                            tempPara = $"{master_Counter}.被引文献:(被引{ref_count}自引{ref_self_count}他引{ref_other_count})";
+                            statistic = $"(被引{ref_count}自引{ref_self_count}他引{ref_other_count})";
                             break;
                         case OutputType.Self:
-                            tempPara = $"{master_Counter}.被引文献:(被引{ref_count}自引{ref_self_count})";
+                            statistic = $"(被引{ref_count}自引{ref_self_count})";
                             break;
                         case OutputType.Other:
-                            tempPara = $"{master_Counter}.被引文献:(被引{ref_count}他引{ref_other_count})";
+                            statistic = $"(被引{ref_count}他引{ref_other_count})";
                             break;
                         case OutputType.SelfWithMatchedAuthors:
-                            tempPara = $"{master_Counter}.被引文献:(被引{ref_count}自引{ref_self_count})";
+                            statistic = $"(被引{ref_count}自引{ref_self_count})";
                             break;
                         case OutputType.Test:
-                            tempPara = $"{master_Counter}.被引文献:(被引{ref_count}自引{ref_self_count}他引{ref_other_count}未定{ref_unset})";
+                            statistic = $"(被引{ref_count}自引{ref_self_count}他引{ref_other_count}未定{ref_unset})";
                             break;
                         default:
                             break;
                     }
-
-                    doc.InsertParagraph(tempPara, false, formattingBold);
+                    p_reference_title.InsertText(tempPara.Length, statistic, false, formattingBoldBlue);
 
                     //测试信息输出
                     if (outputType == OutputType.Test)
@@ -311,7 +315,7 @@ namespace Experiment
                         }
                         else
                         {
-                            doc.InsertParagraph($"[**此文献格式OK]", false, formattingBoldRed);
+                            doc.InsertParagraph($"[**此文献格式OK]", false, formattingBoldBlue);
                         }
                     }
 
@@ -437,7 +441,8 @@ namespace Experiment
 
                                     if (reference.MatchedAuthors.Count > 0)
                                     {
-                                        doc.InsertParagraph($"匹配上的作者共{reference.MatchedAuthors.Count}人", false, formattingBoldBlue);
+                                        doc.InsertParagraph($"[匹配上的作者共{reference.MatchedAuthors.Count}人]",
+                                            false, formattingBoldBlue);
                                         string matched_authors = "";
                                         reference.MatchedAuthors.ForEach(i =>
                                         {
@@ -480,13 +485,36 @@ namespace Experiment
                                     }
                                     else
                                     {
-                                        doc.InsertParagraph($"[**此文献格式OK]", false, formattingBoldRed);
+                                        doc.InsertParagraph($"[**此文献格式OK]", false, formattingBoldBlue);
+                                    }
+
+                                    if (reference.MatchedAuthors.Count > 0)
+                                    {
+                                        doc.InsertParagraph($"[匹配上的作者共{reference.MatchedAuthors.Count}人]",
+                                            false, formattingBoldBlue);
+                                        string matched_authors = "";
+                                        reference.MatchedAuthors.ForEach(i =>
+                                        {
+                                            matched_authors += i + ";";
+                                        });
+                                        doc.InsertParagraph($"[{matched_authors}]", false, formattingBoldBlue);
                                     }
 
                                     foreach (var paragraph in reference.Paragraphs)
                                     {
-                                        doc.InsertParagraph($"{paragraph.Key}:{paragraph.Value}", false, formatting);
+                                        //标记自引的标题
+                                        if (reference.ReferenceType == PaperReferenceType.Self && paragraph.Key == "标题")
+                                        {
+                                            Formatting titleFormating = isUnderLine ? formattingUnderLine : formattingBGYellow;
+                                            doc.InsertParagraph($"{paragraph.Key}:{paragraph.Value}",
+                                                false, titleFormating);
+                                        }
+                                        else
+                                        {
+                                            doc.InsertParagraph($"{paragraph.Key}:{paragraph.Value}", false, formatting);
+                                        }
                                     }
+
                                     reference_Counter++;
                                 }
                             }

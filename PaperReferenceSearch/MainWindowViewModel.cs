@@ -218,7 +218,7 @@ namespace PaperReferenceSearch
                     tempData.ValidInformation = valid_result.ValidInformation;
 
                     InputFiles.Add(tempData);
-                    AppendStatusMessage($"添加了{fileName}");
+                    AppendStatusMessage($"输入文件{fileName}");
                 }
                 int valid_count = InputFiles.Where(i => i.IsValid).Count();
                 AppendStatusMessage($"共添加了{InputFiles.Count}个输入文件,有效文件共{valid_count}个");

@@ -126,22 +126,22 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-    <None Include="DataSample\不规范3.docx">
+    <None Include="DataSample\测试文档4.docx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="DataSample\不规范2.docx">
+    <None Include="DataSample\不规范文档2.docx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="DataSample\不规范1.docx">
+    <None Include="DataSample\不规范文档1.docx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="DataSample\不规范4.docx">
+    <None Include="DataSample\测试文档1.docx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="DataSample\样板输入.docx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="DataSample\测试文档1.docx">
+    <None Include="DataSample\不规范文档3.docx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="DataSample\测试文档2.docx">
@@ -150,7 +150,7 @@
     <None Include="DataSample\测试文档3.docx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="DataSample\空文件.docx">
+    <None Include="DataSample\不规范文档4.docx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="packages.config" />
