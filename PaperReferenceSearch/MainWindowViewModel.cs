@@ -31,6 +31,7 @@ namespace PaperReferenceSearch
             LoadInputFiles();
 
             ChooseInputFolder = new RelayCommand(ActionChooseInputFolder, () => isStartEnable);
+            RefreshInputFolder = new RelayCommand(ActionRefreshInputFolder, () => isStartEnable);
             ChooseOutputFolder = new RelayCommand(ActionChooseOutputFolder, () => isStartEnable);
             OpenDataFile = new RelayCommand<DataFile>(ActionOpenDataFile);
             Start = new RelayCommand(ActionStart, CanStart);
@@ -164,6 +165,15 @@ namespace PaperReferenceSearch
             }
         }
 
+        private void ActionRefreshInputFolder()
+        {
+            if (!string.IsNullOrEmpty(InputPath))
+            {
+                CurrentProgress = 0;
+                LoadInputFiles();
+            }
+        }
+
         private void ActionChooseInputFolder()
         {
             string description = "请选择存放要处理文档的文件夹\r\n确保格式是docx且符合规范要求";
@@ -211,8 +221,7 @@ namespace PaperReferenceSearch
                 }
                 int valid_count = InputFiles.Where(i => i.IsValid).Count();
                 AppendStatusMessage($"共添加了{InputFiles.Count}个输入文件,有效文件共{valid_count}个");
-                AppendStatusMessage("程序仅辅助判定文件是否有效");
-                AppendStatusMessage("程序只处理有效文件，无效文件将跳过");
+                AppendStatusMessage("程序仅辅助判定文件是否有效,无效文件处理时将跳过");
 
             }
         }
@@ -319,6 +328,7 @@ namespace PaperReferenceSearch
 
         #region 公开命令
         public RelayCommand ChooseInputFolder { get; set; }
+        public RelayCommand RefreshInputFolder { get; set; }
         public RelayCommand ChooseOutputFolder { get; set; }
         public RelayCommand<DataFile> OpenDataFile { get; set; }
         public RelayCommand Start { get; set; }

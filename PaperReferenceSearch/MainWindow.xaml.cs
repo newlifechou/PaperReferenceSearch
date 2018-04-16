@@ -37,7 +37,7 @@ namespace PaperReferenceSearch
         {
             try
             {
-                System.Diagnostics.Process.Start(System.IO.Path.Combine(Environment.CurrentDirectory, "文档规范说明.pdf"));
+                System.Diagnostics.Process.Start(System.IO.Path.Combine(Environment.CurrentDirectory, "使用说明.pdf"));
             }
             catch (Exception ex)
             {

@@ -26,12 +26,14 @@ namespace Experiment
                 //判断是否包含【作者】字段
                 int count3 = doc.FindAll("作者").Count;
                 if (count3 == 0)
-                    return new ValidResult(false, "没有包含作者段落");
+                    return new ValidResult(false, "不包含作者段落");
                 //判断被引文献和引用文献是否成对
                 int count1 = doc.FindAll("被引文献").Count;
                 int count2 = doc.FindAll("引用文献").Count;
-                if (count1 == 0 || count2 == 0)
-                    return new ValidResult(false, "没有包含被引文献或者引用文献段落");
+                if (count1 == 0)
+                    return new ValidResult(false, "不包含被引文献段落");
+                if (count2 == 0)
+                    return new ValidResult(false, "不包含引用文献段落");
                 if (count1 != count2)
                     return new ValidResult(false, "被引文献和引用文献数目不相同");
 

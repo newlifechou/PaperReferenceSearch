@@ -9,6 +9,9 @@
         Icon="Resource\Images\Strawberry.png"
         WindowStartupLocation="CenterScreen"
         MinHeight="450" MinWidth="600" Width="800" Height="600">
+    <Window.Resources>
+        <local:ValidConverter x:Key="converter_valid"/>
+    </Window.Resources>
     <Grid Background="{StaticResource brushBackground}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -20,18 +23,21 @@
             <RowDefinition Height="185*"/>
         </Grid.RowDefinitions>
         <TextBlock Grid.Row="0" Text="先确定所有文件均符合规范格式，再执行下面的操作(点击右边按钮查看规范说明)"
-                   Style="{StaticResource StyleTextBlockCommon}" Foreground="Blue"/>
+                   Style="{StaticResource StyleTextBlockCommon}"/>
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="auto"/>
                 <ColumnDefinition/>
+                <ColumnDefinition Width="auto"/>
                 <ColumnDefinition Width="auto"/>
             </Grid.ColumnDefinitions>
             <Button Name="BtnInputFolder" Grid.Column="0" Content="输入文件夹" Style="{StaticResource StyleButtonCommon}"
                     Command="{Binding ChooseInputFolder}"/>
             <TextBox Name="TxtInputPath" Grid.Column="1" Style="{StaticResource StyleTextReadOnly}"
                      Text="{Binding InputPath}"/>
-            <Button Name="BtnStandardFormat" Grid.Column="2" Content="什么是规范格式?" Style="{StaticResource StyleButtonCommon}"
+            <Button Grid.Column="2" Content="刷新" Style="{StaticResource StyleButtonCommon}"
+                    Command="{Binding RefreshInputFolder}"/>
+            <Button Name="BtnStandardFormat" Grid.Column="3" Content="使用说明" Style="{StaticResource StyleButtonCommon}"
                     Click="BtnStandardFormat_Click"/>
         </Grid>
         <DataGrid Name="DgInputFiles" Grid.Row="2" Style="{StaticResource StyleDataGridCommon}"
@@ -50,6 +56,8 @@
                                     ElementStyle="{StaticResource StyleTextBlockCommonDG}"/>
                 <DataGridTextColumn Header="是否规范" Binding="{Binding IsValid}"
                                     ElementStyle="{StaticResource StyleTextBlockCommonDG}"/>
+                <DataGridTextColumn Header="处理" Binding="{Binding IsValid,Converter={StaticResource converter_valid}}"
+                                    ElementStyle="{StaticResource StyleTextBlockCommonDG}"/>
                 <DataGridTextColumn Header="不规范信息" Binding="{Binding ValidInformation}"
                                     ElementStyle="{StaticResource StyleTextBlockCommonDG}"/>
             </DataGrid.Columns>
@@ -61,8 +69,9 @@
                 <ColumnDefinition Width="auto"/>
                 <ColumnDefinition Width="auto"/>
             </Grid.ColumnDefinitions>
-            <TextBlock Grid.Column="1" Text="默认使用作者姓名缩写进行对比" Style="{StaticResource StyleTextBlockCommon}"/>
-            <CheckBox Grid.Column="2" Content="使用下划线标记自引文献标题(不勾使用黄色背景)"
+            <TextBlock Grid.Column="1" Text="默认使用作者姓名缩写进行对比" Style="{StaticResource StyleTextBlockCommon}"
+                        Foreground="Blue"/>
+            <CheckBox Grid.Column="2" Content="下划线标记自引文献标题(不勾使用黄色背景)"
                       Style="{StaticResource StyleCheckBoxCommon}" 
                       IsChecked="{Binding IsUnderLine,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>
             <CheckBox Grid.Column="3" Content="完成后打开输出文件夹"

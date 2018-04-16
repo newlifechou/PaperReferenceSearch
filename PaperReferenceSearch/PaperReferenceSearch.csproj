@@ -82,6 +82,7 @@
     <Compile Include="StandardFormat.xaml.cs">
       <DependentUpon>StandardFormat.xaml</DependentUpon>
     </Compile>
+    <Compile Include="ValidConverter.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -136,16 +137,16 @@
     <None Include="DataSample\单例.docx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="DataSample\样板输入1.docx">
+    <None Include="DataSample\样板输入.docx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="DataSample\样板输入2.docx">
+    <None Include="DataSample\测试文档1.docx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="DataSample\样板输入3.docx">
+    <None Include="DataSample\测试文档2.docx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="DataSample\样板输入4.docx">
+    <None Include="DataSample\测试文档3.docx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="packages.config" />
@@ -153,13 +154,10 @@
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
+    <None Include="使用说明.pdf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="安装说明.docx" />
-    <None Include="安装说明.pdf">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="文档规范说明.pdf">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
