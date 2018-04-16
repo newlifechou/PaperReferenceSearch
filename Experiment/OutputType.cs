@@ -11,6 +11,7 @@ namespace Experiment
         All,
         Self,
         Other,
-        SelfWithMatchedAuthors
+        SelfWithMatchedAuthors,
+        Test
     }
 }

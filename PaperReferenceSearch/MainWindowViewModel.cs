@@ -97,6 +97,12 @@ namespace PaperReferenceSearch
                     service.Output(joblist, output_self_with_matched_authors, OutputType.SelfWithMatchedAuthors, IsUnderLine);
                     AppendStatusMessage($"输出文件:{output_self_with_matched_authors}");
 
+                    //输出测试类型
+                    var output_test = Path.Combine(mainFolder, $"{fileNameNoExtension}_调试输出.docx");
+                    service.Output(joblist, output_test, OutputType.Test, IsUnderLine);
+                    AppendStatusMessage($"输出文件:{output_test}");
+
+
                     //记录进度
                     job_counter++;
                     CurrentProgress = (int)(job_counter * 1.0f / job_total_count * 100);
@@ -104,7 +110,12 @@ namespace PaperReferenceSearch
                 }
                 sw.Stop();
                 AppendStatusMessage($"处理完毕，共处理{job_total_count}个文件，耗时{sw.ElapsedMilliseconds}ms");
-                AppendStatusMessage($"每个输入文件共有[全][仅自引][仅他引][仅自引(包含匹配上的作者)]四个不同类型的输出文件，选择自己需要的类型即可");
+                AppendStatusMessage("输出类型[全]=包含自引和他引，自引文献标题被标记");
+                AppendStatusMessage("输出类型[自引]，仅包含自引文献");
+                AppendStatusMessage("输出类型[他引]，仅包含他引文献");
+                AppendStatusMessage("输出类型[自引-包含匹配作者信息]，仅包含自引文献");
+                AppendStatusMessage("输出类型[调试]，包含自引他引文献，输出每篇文献的处理情况");
+                AppendStatusMessage("选择需要的，其余忽略");
                 if (CanOpenOutputFolder)
                 {
                     Process.Start(mainFolder);
