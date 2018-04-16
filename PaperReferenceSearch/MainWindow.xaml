@@ -10,7 +10,8 @@
         WindowStartupLocation="CenterScreen"
         MinHeight="450" MinWidth="600" Width="800" Height="600">
     <Window.Resources>
-        <local:ValidConverter x:Key="converter_valid"/>
+        <local:ConverterBooleanToString x:Key="converter_boolean_to_string"/>
+        <local:ConverterBooleanToColor x:Key="converter_boolean_to_color"/>
     </Window.Resources>
     <Grid Background="{StaticResource brushBackground}">
         <Grid.RowDefinitions>
@@ -35,7 +36,7 @@
                     Command="{Binding ChooseInputFolder}"/>
             <TextBox Name="TxtInputPath" Grid.Column="1" Style="{StaticResource StyleTextReadOnly}"
                      Text="{Binding InputPath}"/>
-            <Button Grid.Column="2" Content="刷新" Style="{StaticResource StyleButtonCommon}"
+            <Button Grid.Column="2" Content="重新载入" Style="{StaticResource StyleButtonCommon}"
                     Command="{Binding RefreshInputFolder}"/>
             <Button Name="BtnStandardFormat" Grid.Column="3" Content="使用说明" Style="{StaticResource StyleButtonCommon}"
                     Click="BtnStandardFormat_Click"/>
@@ -54,11 +55,17 @@
                 </DataGridTemplateColumn>
                 <DataGridTextColumn Header="文件名" Binding="{Binding Name}" Width="200"
                                     ElementStyle="{StaticResource StyleTextBlockCommonDG}"/>
-                <DataGridTextColumn Header="是否规范" Binding="{Binding IsValid}"
-                                    ElementStyle="{StaticResource StyleTextBlockCommonDG}"/>
-                <DataGridTextColumn Header="处理" Binding="{Binding IsValid,Converter={StaticResource converter_valid}}"
-                                    ElementStyle="{StaticResource StyleTextBlockCommonDG}"/>
-                <DataGridTextColumn Header="不规范信息" Binding="{Binding ValidInformation}"
+                <DataGridTemplateColumn Header="是否规范">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding IsValid,Converter={StaticResource converter_boolean_to_string}}"
+                                       Style="{StaticResource StyleTextBlockCommonDG}"
+                                       TextAlignment="Center"
+                                       Background="{Binding IsValid,Converter={StaticResource converter_boolean_to_color}}"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTextColumn Header="信息" Binding="{Binding ValidInformation}"
                                     ElementStyle="{StaticResource StyleTextBlockCommonDG}"/>
             </DataGrid.Columns>
         </DataGrid>

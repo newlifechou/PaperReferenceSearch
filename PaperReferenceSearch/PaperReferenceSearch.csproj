@@ -77,12 +77,13 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="ConverterBooleanToColor.cs" />
     <Compile Include="MainWindowViewModel.cs" />
     <Compile Include="Service\XSHelper.cs" />
     <Compile Include="StandardFormat.xaml.cs">
       <DependentUpon>StandardFormat.xaml</DependentUpon>
     </Compile>
-    <Compile Include="ValidConverter.cs" />
+    <Compile Include="ConverterBooleanToString.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

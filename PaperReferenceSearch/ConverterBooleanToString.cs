@@ -8,12 +8,12 @@ using System.Windows.Data;
 
 namespace PaperReferenceSearch
 {
-    public class ValidConverter : IValueConverter
+    public class ConverterBooleanToString : IValueConverter
     {
-        public ValidConverter()
+        public ConverterBooleanToString()
         {
-            Good = "参与";
-            Bad = "跳过";
+            Good = "PASS";
+            Bad =  "FAIL";
         }
         public string Good { get; set; }
         public string Bad { get; set; }
