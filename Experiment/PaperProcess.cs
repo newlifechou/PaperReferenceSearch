@@ -19,113 +19,130 @@ namespace Experiment
         /// <returns></returns>
         public JobList Resolve(string filePath)
         {
+            //存储文档的非空段落
+            List<string> paragraphs = null;
             using (DocX doc = DocX.Load(filePath))
             {
-
-                bool isMasterArea = false;
-                bool isGuestArea = false;
-                bool isGuestBlockStart = false;
-
-                JobList worklist = new JobList();
-                JobUnit tempJobUnit = new JobUnit();
-                Paper tempPaper = null;
-                PaperParagraph tempPara = null;
-
-                foreach (var p in doc.Paragraphs)
-                {
-                    string line = p.Text.Trim();
-                    //空行和无效行跳过
-                    if (string.IsNullOrEmpty(line)
-                        || line.Contains("附件"))
-                    {
-                        continue;
-                    }
-
-                    #region 判断区域位置
-                    //被引文献开始了
-                    if (line.Contains("被引文献"))
-                    {
-                        //判断之前有没有Paper区块还没有添加
-                        if (tempPaper != null && tempPaper.Paragraphs.Count > 0)
-                        {
-                            tempJobUnit.References.Add(tempPaper);
-                            tempPaper = new Paper();
-                        }
-
-                        //判断之前有没有没添加的任务快
-                        if (tempJobUnit != null && tempJobUnit.Master.Paragraphs.Count > 0)
-                        {
-                            worklist.Jobs.Add(tempJobUnit);
-                            tempJobUnit = new JobUnit();
-                        }
-
-
-                        isMasterArea = true;
-                        isGuestArea = false;
-                        isGuestBlockStart = false;
-                        continue;
-                    }
-                    //被引用文献结束，引用文献区域开始
-                    else if (line.Contains("引用文献"))
-                    {
-                        isMasterArea = false;
-                        isGuestArea = true;
-                        isGuestBlockStart = false;
-                        continue;
-                    }
-
-                    if (isGuestArea && line.StartsWith("第"))
-                    {
-                        //新引用文献开始了
-                        isGuestBlockStart = true;
-                        //添加之前的区块
-                        if (tempPaper != null && tempPaper.Paragraphs.Count > 0)
-                        {
-                            tempJobUnit.References.Add(tempPaper);
-                        }
-                        tempPaper = new Paper();
-                        continue;
-                    }
-                    #endregion
-
-                    #region 区块处理
-                    //处理的被引用文献的行
-                    if (isMasterArea)
-                    {
-                        //读取行到Master块
-                        tempPara = PaperProcessHelper.DivideParagraph(line);
-                        tempJobUnit.Master.Paragraphs.Add(tempPara.Prefix, tempPara.Content);
-                    }
-                    else if (isGuestArea && isGuestBlockStart)
-                    {
-                        //处理的是引用文献的行
-                        //读取行到临时块
-                        tempPara = PaperProcessHelper.DivideParagraph(line);
-                        if (tempPaper != null)
-                        {
-                            tempPaper.Paragraphs.Add(tempPara.Prefix, tempPara.Content);
-                        }
-                    }
-
-                }
-
-                //添加末尾最后一个区块
-                if (tempPaper != null && tempPaper.Paragraphs.Count > 0)
-                {
-                    tempJobUnit.References.Add(tempPaper);
-                    tempPaper = new Paper();
-                }
-
-                //判断之前有没有没添加的任务快
-                if (tempJobUnit != null && tempJobUnit.Master.Paragraphs.Count > 0)
-                {
-                    worklist.Jobs.Add(tempJobUnit);
-                    tempJobUnit = new JobUnit();
-                }
-
-                #endregion
-                return worklist;
+                paragraphs = doc.Paragraphs.Where(i => !string.IsNullOrEmpty(i.Text.Trim()))
+                    .Select(i => i.Text.Trim()).ToList();
             }
+
+            bool isMasterArea = false;
+            bool isGuestArea = false;
+            bool isGuestBlockStart = false;
+
+            JobList jobList = new JobList();
+            JobUnit tempJobUnit = new JobUnit();
+            Paper tempPaper = null;
+            PaperParagraph tempPara = null;
+
+            foreach (var line in paragraphs)
+            {
+                //无效行直接跳过不处理
+                if (!PaperProcessHelper.CheckParagraphValid(line))
+                {
+                    System.Diagnostics.Debug.WriteLine("[解析]有无效行被跳过");
+                    continue;
+                }
+
+                //空行和无效行跳过
+                if (string.IsNullOrEmpty(line))
+                {
+                    continue;
+                }
+                if (line.Contains("附件"))
+                {
+                    continue;
+                }
+
+
+                #region 判断区域位置
+                //被引文献开始了
+                if (line.Contains("被引文献"))
+                {
+                    //判断之前有没有Paper区块还没有添加
+                    if (tempPaper != null && tempPaper.Paragraphs.Count > 0)
+                    {
+                        tempJobUnit.References.Add(tempPaper);
+                        tempPaper = new Paper();
+                    }
+
+                    //判断之前有没有没添加的任务快
+                    if (tempJobUnit != null && tempJobUnit.Master.Paragraphs.Count > 0)
+                    {
+                        jobList.Jobs.Add(tempJobUnit);
+                        tempJobUnit = new JobUnit();
+                    }
+
+
+                    isMasterArea = true;
+                    isGuestArea = false;
+                    isGuestBlockStart = false;
+                    continue;
+                }
+                //被引用文献结束，引用文献区域开始
+                else if (line.Contains("引用文献"))
+                {
+                    isMasterArea = false;
+                    isGuestArea = true;
+                    isGuestBlockStart = false;
+                    continue;
+                }
+
+                if (isGuestArea && line.StartsWith("第"))
+                {
+                    //新引用文献开始了
+                    isGuestBlockStart = true;
+                    //添加之前的区块
+                    if (tempPaper != null && tempPaper.Paragraphs.Count > 0)
+                    {
+                        tempJobUnit.References.Add(tempPaper);
+                    }
+                    tempPaper = new Paper();
+                    continue;
+                }
+                #endregion
+
+                //除上面的特征行外，其余的有效行都应该包含英文冒号
+                if (!line.Contains(":"))
+                {
+                    continue;
+                }
+
+                //处理的被引用文献的行
+                if (isMasterArea)
+                {
+                    //读取行到Master块
+                    tempPara = PaperProcessHelper.DivideParagraph(line);
+                    tempJobUnit.Master.Paragraphs.Add(tempPara.Prefix, tempPara.Content);
+                }
+                else if (isGuestArea && isGuestBlockStart)
+                {
+                    //处理的是引用文献的行
+                    //读取行到临时块
+                    tempPara = PaperProcessHelper.DivideParagraph(line);
+                    if (tempPaper != null)
+                    {
+                        tempPaper.Paragraphs.Add(tempPara.Prefix, tempPara.Content);
+                    }
+                }
+            }
+
+            //添加末尾最后一个区块
+            if (tempPaper != null && tempPaper.Paragraphs.Count > 0)
+            {
+                tempJobUnit.References.Add(tempPaper);
+                tempPaper = new Paper();
+            }
+
+            //判断之前有没有没添加的任务快
+            if (tempJobUnit != null && tempJobUnit.Master.Paragraphs.Count > 0)
+            {
+                jobList.Jobs.Add(tempJobUnit);
+                tempJobUnit = new JobUnit();
+            }
+
+            return jobList;
 
         }
 
@@ -248,7 +265,7 @@ namespace Experiment
                 formattingBGYellow.Highlight = Highlight.yellow;
                 #endregion
 
-                string tempPara="";
+                string tempPara = "";
                 int master_Counter = 1;
                 int reference_Counter = 1;
                 foreach (var job in jobList.Jobs)

@@ -100,7 +100,7 @@ namespace PaperReferenceSearch
                     AppendStatusMessage($"输出文件:{output_self_with_matched_authors}");
 
                     //输出测试类型
-                    var output_test = Path.Combine(mainFolder, $"{fileNameNoExtension}_调试输出.docx");
+                    var output_test = Path.Combine(mainFolder, $"{fileNameNoExtension}_全_调试.docx");
                     service.Output(joblist, output_test, OutputType.Test, IsUnderLine);
                     AppendStatusMessage($"输出文件:{output_test}");
 

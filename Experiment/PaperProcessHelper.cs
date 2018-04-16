@@ -12,48 +12,57 @@ namespace Experiment
 
         public static ValidResult IsFormatOK(string filePath)
         {
+            //一次读入内容
+            List<string> lines = null;
             using (DocX doc = DocX.Load(filePath))
             {
-                //判断是否都是有效段落
-                foreach (var paragraph in doc.Paragraphs)
-                {
-                    if (!CheckFormat(paragraph.Text.Trim()))
-                    {
-                        return new ValidResult(false, "有段落不是[空] [包含：附件 被引文献 引用文献] [以第开头]中一种");
-                    }
-                }
-
-                //判断是否包含【作者】字段
-                int count3 = doc.FindAll("作者").Count;
-                if (count3 == 0)
-                    return new ValidResult(false, "不包含作者段落");
-                //判断被引文献和引用文献是否成对
-                int count1 = doc.FindAll("被引文献").Count;
-                int count2 = doc.FindAll("引用文献").Count;
-                if (count1 == 0)
-                    return new ValidResult(false, "不包含被引文献段落");
-                if (count2 == 0)
-                    return new ValidResult(false, "不包含引用文献段落");
-                if (count1 != count2)
-                    return new ValidResult(false, "被引文献和引用文献数目不配对");
-
-                return new ValidResult(true, "");
+                //读取所有非空行
+                lines = doc.Paragraphs.Where(i => i.Text.Trim() != "")
+                    .Select(i => i.Text.Trim()).ToList();
             }
+
+            if (lines.Count == 0)
+            {
+                return new ValidResult(false, "文档不能为空");
+            }
+
+            if (lines.Where(i => !CheckParagraphValid(i)).Count() > 0)
+            {
+                return new ValidResult(false, "有段落不是[空] [包含：被引文献 引用文献] [以第开头]中一种");
+            }
+
+            //判断是否包含【作者】字段
+            int count_authors = lines.Where(i => i.StartsWith("作者")).Count();
+            if (count_authors == 0)
+                return new ValidResult(false, "不包含作者段落");
+
+            //判断被引文献和引用文献是否成对
+            int count_be_ref = lines.Where(i => i.Contains("被引文献")).Count();
+            int count_ref = lines.Where(i => i.Contains("引用文献")).Count();
+            if (count_be_ref == 0)
+                return new ValidResult(false, "不包含被引文献段落");
+            if (count_ref == 0)
+                return new ValidResult(false, "不包含引用文献段落");
+            if (count_be_ref != count_ref)
+                return new ValidResult(false, "被引文献和引用文献数目不配对");
+
+            return new ValidResult(true, "");
+
         }
 
         /// <summary>
-        /// 检查段落是否符合要求
+        /// 是否是要求的段落之一
         /// </summary>
         /// <param name="p"></param>
         /// <returns></returns>
-        private static bool CheckFormat(string p)
+        public static bool CheckParagraphValid(string p)
         {
             var assert1 = string.IsNullOrEmpty(p)
                 || p.Contains("附件")
                 || p.Contains("被引文献")
                 || p.Contains("引用文献")
-                || p.Contains(":")
-                || p.StartsWith("第");
+                || p.StartsWith("第")
+                || p.Contains(":");
             return assert1;
         }
 
