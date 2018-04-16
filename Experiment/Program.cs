@@ -15,7 +15,7 @@ namespace Experiment
             string filePath = Path.Combine(Environment.CurrentDirectory, "样板输入.docx");
             PaperProcess process = new PaperProcess();
 
-            if (!process.IsFormatOK(filePath))
+            if (!PaperProcessHelper.IsFormatOK(filePath).IsValid)
             {
                 Console.WriteLine("格式不正确，被引文献标记和引用文献标记数目不相等");
                 return;
@@ -39,9 +39,9 @@ namespace Experiment
             }
 
 
-            process.Output(jobList, "dataAll.docx", OutputType.All,false);
-            process.Output(jobList, "dataSelf.docx", OutputType.Self,false);
-            process.Output(jobList, "dataOther.docx", OutputType.Other,false);
+            process.Output(jobList, "dataAll.docx", OutputType.All, false);
+            process.Output(jobList, "dataSelf.docx", OutputType.Self, false);
+            process.Output(jobList, "dataOther.docx", OutputType.Other, false);
             Console.WriteLine("输出到docx文件");
 
             Console.WriteLine("done");

@@ -41,7 +41,7 @@
                     Click="BtnStandardFormat_Click"/>
         </Grid>
         <DataGrid Name="DgInputFiles" Grid.Row="2" Style="{StaticResource StyleDataGridCommon}"
-                  ItemsSource="{Binding InputFiles}">
+                  ItemsSource="{Binding InputFiles}" FrozenColumnCount="1">
             <DataGrid.Columns>
                 <DataGridTemplateColumn Header="操作">
                     <DataGridTemplateColumn.CellTemplate>

@@ -19,7 +19,7 @@ namespace Experiment
                 {
                     if (!CheckFormat(paragraph.Text.Trim()))
                     {
-                        return new ValidResult(false, "段落不是[空][包含:][包含附件][包含被引文献][包含引用文献][以第开头]");
+                        return new ValidResult(false, "有段落不是[空] [包含：附件 被引文献 引用文献] [以第开头]中一种");
                     }
                 }
 

@@ -125,7 +125,7 @@ namespace PaperReferenceSearch
 
             catch (Exception ex)
             {
-                AppendStatusMessage(ex.Message);
+                AppendStatusMessage($"[Exeption]:{ex.Message}");
             }
             finally
             {
@@ -146,7 +146,7 @@ namespace PaperReferenceSearch
             }
             catch (Exception ex)
             {
-                AppendStatusMessage(ex.Message);
+                AppendStatusMessage($"[Exeption]:{ex.Message}");
             }
         }
 

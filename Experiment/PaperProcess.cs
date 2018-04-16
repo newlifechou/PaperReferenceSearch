@@ -10,26 +10,10 @@ namespace Experiment
 {
     public class PaperProcess
     {
-        /// <summary>
-        /// 检查
-        /// </summary>
-        /// <param name="filePath"></param>
-        /// <returns></returns>
-        public bool IsFormatOK(string filePath)
-        {
-            using (DocX doc = DocX.Load(filePath))
-            {
-                int count1 = doc.FindAll("被引文献").Count;
-                int count2 = doc.FindAll("引用文献").Count;
-                int count3 = doc.FindAll("作者").Count;
 
-                if (count1 == 0 || count2 == 0 || count3 == 0) return false;
-
-                return count1 == count2;
-            }
-        }
         /// <summary>
         /// 解析word文档docx
+        /// 处理前确认文档基本规范
         /// </summary>
         /// <param name="filePath"></param>
         /// <returns></returns>
@@ -264,19 +248,43 @@ namespace Experiment
                 formattingBGYellow.Highlight = Highlight.yellow;
                 #endregion
 
-                string tempPara;
+                string tempPara="";
                 int master_Counter = 1;
                 int reference_Counter = 1;
                 foreach (var job in jobList.Jobs)
                 {
+                    //统计文献数目
                     int ref_count = job.References.Count;
                     int ref_self_count = job.References.Where(r =>
                                                     r.ReferenceType == PaperReferenceType.Self).Count();
-                    int ref_other_count = ref_count - ref_self_count;
+                    int ref_other_count = job.References.Where(r =>
+                                                    r.ReferenceType == PaperReferenceType.Other).Count();
+                    int ref_unset = job.References.Where(r =>
+                                                    r.ReferenceType == PaperReferenceType.UnSet).Count();
+                    switch (outputType)
+                    {
+                        case OutputType.All:
+                            tempPara = $"{master_Counter}.被引文献:(被引{ref_count}自引{ref_self_count}他引{ref_other_count})";
+                            break;
+                        case OutputType.Self:
+                            tempPara = $"{master_Counter}.被引文献:(被引{ref_count}自引{ref_self_count})";
+                            break;
+                        case OutputType.Other:
+                            tempPara = $"{master_Counter}.被引文献:(被引{ref_count}他引{ref_other_count})";
+                            break;
+                        case OutputType.SelfWithMatchedAuthors:
+                            tempPara = $"{master_Counter}.被引文献:(被引{ref_count}自引{ref_self_count})";
+                            break;
+                        case OutputType.Test:
+                            tempPara = $"{master_Counter}.被引文献:(被引{ref_count}自引{ref_self_count}他引{ref_other_count}未定{ref_unset})";
+                            break;
+                        default:
+                            break;
+                    }
 
-                    tempPara = $"{master_Counter}.被引文献:(被引{ref_count}自引{ref_self_count}他引{ref_other_count})";
                     doc.InsertParagraph(tempPara, false, formattingBold);
-                    //测试输出
+
+                    //测试信息输出
                     if (outputType == OutputType.Test)
                     {
                         if (job.Master.NoneStandardInformation != "")
