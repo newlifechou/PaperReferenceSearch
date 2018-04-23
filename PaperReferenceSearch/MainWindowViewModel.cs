@@ -64,11 +64,12 @@ namespace PaperReferenceSearch
                 PaperProcess service = new PaperProcess();
                 AppendStatusMessage("####开始处理格式规范的有效文件");
                 var mainFolder = Path.Combine(OutputPath, DateTime.Now.ToString("yyMMdd"));
-                if (Directory.Exists(mainFolder))
+                if (!Directory.Exists(mainFolder))
                 {
-                    Directory.Delete(mainFolder, true);
+                    //Directory.Delete(mainFolder, true);
+                    Directory.CreateDirectory(mainFolder);
                 }
-                Directory.CreateDirectory(mainFolder);
+
 
                 int job_total_count = jobs.Count();
                 int job_counter = 0;

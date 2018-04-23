@@ -32,7 +32,7 @@ namespace Experiment
             //}
 
             //判断是否包含【作者】字段
-            int count_authors = lines.Where(i => i.StartsWith("作者")).Count();
+            int count_authors = lines.Where(i => i.Contains("作者")).Count();
             if (count_authors == 0)
                 return new ValidResult(false, "包含0个作者段落");
 
@@ -78,7 +78,7 @@ namespace Experiment
             int position = p.IndexOf(':');
             string prefix = p.Substring(0, position);
             string content = p.Substring(position + 1);
-            return new PaperParagraph(prefix, content);
+            return new PaperParagraph(prefix.Trim(), content.Trim());
         }
 
         /// <summary>
@@ -133,6 +133,38 @@ namespace Experiment
             return result.Trim();
         }
 
+        public static bool IsEnglishLetter(char firstOne)
+        {
+            return char.IsLower(firstOne);
+        }
+
+        public static string AddPostfix(Dictionary<string, string> dict, string prefix)
+        {
+            if (dict.Count == 0) return "";
+            int i = 1;
+            string postfix = "";
+            while (dict.ContainsKey(prefix))
+            {
+                postfix = new string('A', i);
+                prefix += postfix;
+                i++;
+            }
+            return postfix;
+        }
+
+        public static string CatAuthors(Dictionary<string,string> dict)
+        {
+            StringBuilder sb = new StringBuilder();
+            var query = from p in dict
+                        where p.Key.Contains("作者")
+                        select p;
+            foreach (var p in query)
+            {
+                sb.Append(p.Value);
+                sb.Append(";");
+            }
+            return sb.ToString();
+        }
 
     }
 }

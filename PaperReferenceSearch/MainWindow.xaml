@@ -77,7 +77,7 @@
                 <ColumnDefinition Width="auto"/>
                 <ColumnDefinition Width="auto"/>
             </Grid.ColumnDefinitions>
-            <TextBlock Grid.Column="1" Text="默认使用作者姓名缩写进行对比" Style="{StaticResource StyleTextBlockCommon}"
+            <TextBlock Grid.Column="1" Text="默认使用作者姓名缩写进行对比,多作者行会合并" Style="{StaticResource StyleTextBlockCommon}"
                         Foreground="Blue" ToolTip="同一个作者在不同文献中的全名写法有不一样，缩写比较可靠"/>
             <CheckBox Grid.Column="2" Content="下划线标记自引文献标题(不勾使用黄色背景)"
                       Style="{StaticResource StyleCheckBoxCommon}" 

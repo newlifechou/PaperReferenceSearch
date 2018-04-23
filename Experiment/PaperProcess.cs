@@ -114,6 +114,16 @@ namespace Experiment
                 {
                     //读取行到Master块
                     tempPara = PaperProcessHelper.DivideParagraph(line);
+
+                    if (tempJobUnit.Master.Paragraphs.ContainsKey(tempPara.Prefix))
+                    {
+                        System.Diagnostics.Debug.WriteLine($"重复键");
+                        TestHelper.TreeIt(tempJobUnit.Master.Paragraphs);
+                        tempJobUnit.Master.NoneStandardInformation += $"[{tempPara.Prefix}]行前缀重复";
+                        //如果有重复，添加新后缀
+                        tempPara.Prefix += PaperProcessHelper.AddPostfix(tempJobUnit.Master.Paragraphs,
+                            tempPara.Prefix);
+                    }
                     tempJobUnit.Master.Paragraphs.Add(tempPara.Prefix, tempPara.Content);
                 }
                 else if (isGuestArea && isGuestBlockStart)
@@ -121,6 +131,15 @@ namespace Experiment
                     //处理的是引用文献的行
                     //读取行到临时块
                     tempPara = PaperProcessHelper.DivideParagraph(line);
+                    if (tempPaper.Paragraphs.ContainsKey(tempPara.Prefix))
+                    {
+                        System.Diagnostics.Debug.WriteLine($"重复键");
+                        TestHelper.TreeIt(tempPaper.Paragraphs);
+
+                        tempPaper.NoneStandardInformation += $"[{tempPara.Prefix}]行前缀重复";
+                        tempPara.Prefix += PaperProcessHelper.AddPostfix(tempPaper.Paragraphs,
+                            tempPara.Prefix);
+                    }
                     if (tempPaper != null)
                     {
                         tempPaper.Paragraphs.Add(tempPara.Prefix, tempPara.Content);
@@ -157,16 +176,16 @@ namespace Experiment
             foreach (var job in jobList.Jobs)
             {
                 //找到Master的作者段落
-                if (job.Master.Paragraphs.ContainsKey("作者"))
+                if (job.Master.Paragraphs.Keys.Where(i => i.Contains("作者")).Count() > 0)
                 {
-                    p = job.Master.Paragraphs["作者"];
+                    p = PaperProcessHelper.CatAuthors(job.Master.Paragraphs);
                     string[] names = PaperProcessHelper.DivideNames(p);
 
                     foreach (var reference in job.References)
                     {
-                        if (reference.Paragraphs.ContainsKey("作者"))
+                        if (reference.Paragraphs.Where(i => i.Key.Contains("作者")).Count() > 0)
                         {
-                            p = reference.Paragraphs["作者"];
+                            p = PaperProcessHelper.CatAuthors(reference.Paragraphs);
                             string ref_name = p;
                             var query = names.Where(i => ref_name
                                               .Contains(PaperProcessHelper.GetNameAbbr(i)));
