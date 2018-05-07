@@ -119,7 +119,7 @@ namespace Experiment
                     {
                         System.Diagnostics.Debug.WriteLine($"重复键");
                         TestHelper.TreeIt(tempJobUnit.Master.Paragraphs);
-                        tempJobUnit.Master.NoneStandardInformation += $"[{tempPara.Prefix}]行前缀重复";
+                        tempJobUnit.Master.NoneStandardInformation += $"[{tempPara.Prefix}]行前缀重复 ";
                         //如果有重复，添加新后缀
                         tempPara.Prefix += PaperProcessHelper.AddPostfix(tempJobUnit.Master.Paragraphs,
                             tempPara.Prefix);
@@ -136,7 +136,7 @@ namespace Experiment
                         System.Diagnostics.Debug.WriteLine($"重复键");
                         TestHelper.TreeIt(tempPaper.Paragraphs);
 
-                        tempPaper.NoneStandardInformation += $"[{tempPara.Prefix}]行前缀重复";
+                        tempPaper.NoneStandardInformation += $"[{tempPara.Prefix}]行前缀重复 ";
                         tempPara.Prefix += PaperProcessHelper.AddPostfix(tempPaper.Paragraphs,
                             tempPara.Prefix);
                     }
@@ -338,7 +338,7 @@ namespace Experiment
                             statistic = $"(被引{job.ReferenceCount}自引{job.SelfReferenceCount})";
                             break;
                         case OutputType.Test:
-                            statistic = $"(被引{job.ReferenceCount}自引{job.SelfReferenceCount}他引{job.OtherReferenceCount})";
+                            statistic = $"(被引{job.ReferenceCount}自引{job.SelfReferenceCount}他引{job.OtherReferenceCount}未定{job.UnSetReferenceCount})";
                             break;
                         default:
                             break;
