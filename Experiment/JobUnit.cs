@@ -15,5 +15,39 @@ namespace Experiment
         }
         public Paper Master { get; set; }
         public List<Paper> References { get; set; }
+
+        public int ReferenceCount
+        {
+            get
+            {
+                return References.Count();
+            }
+        }
+
+        public int SelfReferenceCount
+        {
+            get
+            {
+                return References.Where(i => i.ReferenceType == PaperReferenceType.Self).Count();
+            }
+        }
+
+        public int OtherReferenceCount
+        {
+            get
+            {
+                return References.Where(i => i.ReferenceType == PaperReferenceType.Other).Count();
+            }
+        }
+
+        public int UnSetReferenceCount
+        {
+            get
+            {
+                return References.Where(i => i.ReferenceType == PaperReferenceType.UnSet).Count();
+            }
+        }
+
+
     }
 }

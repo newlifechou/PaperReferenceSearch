@@ -5,10 +5,10 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:PaperReferenceSearch"
         mc:Ignorable="d"
-        Title="文献自引他引解析工具 v1.0.0.0"
-        Icon="Resource\Images\Strawberry.png"
+        Title="文献自引他引解析工具 v1.0.1.1"
+        Icon="Resource\Images\ooopic_1525705078.png"
         WindowStartupLocation="CenterScreen"
-        MinHeight="450" MinWidth="600" Width="800" Height="600">
+        MinHeight="450" MinWidth="600" Width="850" Height="600">
     <Window.Resources>
         <local:ConverterBooleanToString x:Key="converter_boolean_to_string"/>
         <local:ConverterBooleanToColor x:Key="converter_boolean_to_color"/>
@@ -17,11 +17,11 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="184*"/>
+            <RowDefinition Height="223*"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="185*"/>
+            <RowDefinition Height="224*"/>
         </Grid.RowDefinitions>
         <TextBlock Grid.Row="0" Text="先确定所有文件均符合规范格式，再执行下面的操作(点击右边按钮查看规范说明)"
                    Style="{StaticResource StyleTextBlockCommon}"/>
@@ -77,11 +77,26 @@
                 <ColumnDefinition Width="auto"/>
                 <ColumnDefinition Width="auto"/>
             </Grid.ColumnDefinitions>
-            <TextBlock Grid.Column="1" Text="默认使用作者姓名缩写进行对比,多作者行会合并" Style="{StaticResource StyleTextBlockCommon}"
+            <TextBlock Grid.Column="0" Text="默认使用作者姓名缩写进行对比,多作者行会合并" Style="{StaticResource StyleTextBlockCommon}"
                         Foreground="Blue" ToolTip="同一个作者在不同文献中的全名写法有不一样，缩写比较可靠"/>
-            <CheckBox Grid.Column="2" Content="下划线标记自引文献标题(不勾使用黄色背景)"
+            <CheckBox Grid.Column="1" Content="只匹配第一作者"
                       Style="{StaticResource StyleCheckBoxCommon}" 
-                      IsChecked="{Binding IsUnderLine,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>
+                      IsChecked="{Binding IsOnlyMatchFirstAuthor,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}">
+                <CheckBox.ToolTip>
+                    <Border>
+                        <TextBlock Text="不勾选匹配所有作者"/>
+                    </Border>
+                </CheckBox.ToolTip>
+            </CheckBox>
+            <CheckBox Grid.Column="2" Content="用下划线标记自引文献标题"
+                      Style="{StaticResource StyleCheckBoxCommon}" 
+                      IsChecked="{Binding IsUnderLine,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}">
+                <CheckBox.ToolTip>
+                    <Border>
+                        <TextBlock Text="不勾选使用黄色背景色标注"/>
+                    </Border>
+                </CheckBox.ToolTip>
+            </CheckBox>
             <CheckBox Grid.Column="3" Content="完成后打开输出文件夹"
                       Style="{StaticResource StyleCheckBoxCommon}" 
                       IsChecked="{Binding CanOpenOutputFolder,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>

@@ -34,7 +34,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>Resource\Images\Strawberry.ico</ApplicationIcon>
+    <ApplicationIcon>Resource\Images\ooopic_1525705076.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="CommonServiceLocator, Version=2.0.2.0, Culture=neutral, PublicKeyToken=489b6accfaf20ef0, processorArchitecture=MSIL">
@@ -187,6 +187,10 @@
   <ItemGroup>
     <Resource Include="Resource\Images\kiwi.ico" />
     <Resource Include="Resource\Images\kiwi.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resource\Images\ooopic_1525705076.ico" />
+    <Resource Include="Resource\Images\ooopic_1525705078.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

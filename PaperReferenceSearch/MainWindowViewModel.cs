@@ -25,6 +25,7 @@ namespace PaperReferenceSearch
             outputPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
             canOpenOutputFolder = true;
             IsUnderLine = false;
+            IsOnlyMatchFirstAuthor = false;
             CurrentProgress = 0;
             isStartEnable = true;
 
@@ -66,7 +67,6 @@ namespace PaperReferenceSearch
                 var mainFolder = Path.Combine(OutputPath, DateTime.Now.ToString("yyMMdd"));
                 if (!Directory.Exists(mainFolder))
                 {
-                    //Directory.Delete(mainFolder, true);
                     Directory.CreateDirectory(mainFolder);
                 }
 
@@ -78,7 +78,7 @@ namespace PaperReferenceSearch
                 {
                     var joblist = service.Resolve(file.FullName);
 
-                    service.Analyse(joblist);
+                    service.Analyse(joblist,IsOnlyMatchFirstAuthor);
 
                     var fileNameNoExtension = Path.GetFileNameWithoutExtension(file.FullName);
 
@@ -86,14 +86,22 @@ namespace PaperReferenceSearch
                     var output_all = Path.Combine(mainFolder, $"{fileNameNoExtension}_全.docx");
                     service.Output(joblist, output_all, OutputType.All, IsUnderLine);
                     AppendStatusMessage($"输出文件:{output_all}");
+
                     //输出自引类型
                     var output_self = Path.Combine(mainFolder, $"{fileNameNoExtension}_自引.docx");
                     service.Output(joblist, output_self, OutputType.Self, IsUnderLine);
                     AppendStatusMessage($"输出文件:{output_self}");
+
                     //输出他引类型
                     var output_other = Path.Combine(mainFolder, $"{fileNameNoExtension}_他引.docx");
                     service.Output(joblist, output_other, OutputType.Other, IsUnderLine);
                     AppendStatusMessage($"输出文件:{output_other}");
+
+                    //输出他引类型-仅包含他引统计信息
+                    var output_other2 = Path.Combine(mainFolder, $"{fileNameNoExtension}_他引_仅包含他引统计.docx");
+                    service.Output(joblist, output_other2, OutputType.Other2, IsUnderLine);
+                    AppendStatusMessage($"输出文件:{output_other2}");
+
                     //输出自引包含匹配到的作者列表
                     var output_self_with_matched_authors =
                         Path.Combine(mainFolder, $"{fileNameNoExtension}_自引_包括匹配到的作者.docx");
@@ -112,13 +120,8 @@ namespace PaperReferenceSearch
                     Debug.WriteLine($"{CurrentProgress}-{job_counter}-{job_total_count}");
                 }
                 sw.Stop();
+
                 AppendStatusMessage($"处理完毕，共处理{job_total_count}个文件，耗时{sw.ElapsedMilliseconds}ms");
-                AppendStatusMessage("输出类型[全]=包含自引和他引，自引文献标题被标记");
-                AppendStatusMessage("输出类型[自引]，仅包含自引文献");
-                AppendStatusMessage("输出类型[他引]，仅包含他引文献");
-                AppendStatusMessage("输出类型[自引-包含匹配作者信息]，仅包含自引文献");
-                AppendStatusMessage("输出类型[调试]，包含自引他引文献，输出每篇文献的处理情况");
-                AppendStatusMessage("选择需要的，其余忽略");
                 if (CanOpenOutputFolder)
                 {
                     Process.Start(mainFolder);
@@ -273,7 +276,7 @@ namespace PaperReferenceSearch
             }
         }
 
-        public bool canOpenOutputFolder;
+        private bool canOpenOutputFolder;
         public bool CanOpenOutputFolder
         {
             get
@@ -287,7 +290,7 @@ namespace PaperReferenceSearch
             }
         }
 
-        public bool isUnderLine;
+        private bool isUnderLine;
         public bool IsUnderLine
         {
 
@@ -302,7 +305,22 @@ namespace PaperReferenceSearch
             }
         }
 
-        public int currentProgress;
+        private bool isOnlyMatchFirstAuthor;
+        public bool IsOnlyMatchFirstAuthor
+        {
+            get
+            {
+                return isOnlyMatchFirstAuthor;
+            }
+            set
+            {
+                isOnlyMatchFirstAuthor = value;
+                RaisePropertyChanged(nameof(IsOnlyMatchFirstAuthor));
+            }
+        }
+
+
+        private int currentProgress;
         public int CurrentProgress
         {
             get

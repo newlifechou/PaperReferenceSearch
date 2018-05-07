@@ -169,7 +169,7 @@ namespace Experiment
         /// 分析自引他引
         /// </summary>
         /// <param name="jobList"></param>
-        public void Analyse(JobList jobList)
+        public void Analyse(JobList jobList, bool isOnlyMatchFirstAuthor = false)
         {
             string p;
             //处理自引他引，对References进行标记
@@ -179,33 +179,48 @@ namespace Experiment
                 if (job.Master.Paragraphs.Keys.Where(i => i.Contains("作者")).Count() > 0)
                 {
                     p = PaperProcessHelper.CatAuthors(job.Master.Paragraphs);
-                    string[] names = PaperProcessHelper.DivideNames(p);
+                    string[] temp_names = PaperProcessHelper.DivideNames(p);
 
+                    List<string> names = new List<string>();
+                    if (isOnlyMatchFirstAuthor && temp_names.Length > 0)
+                    {
+                        //只添加第一个作者到要匹配的列表中
+                        names.Add(temp_names[0]);
+                    }
+                    else
+                    {
+                        names.AddRange(temp_names);
+                    }
+                    //处理该被引文献下面的每个引用文献
                     foreach (var reference in job.References)
                     {
                         if (reference.Paragraphs.Where(i => i.Key.Contains("作者")).Count() > 0)
                         {
-                            p = PaperProcessHelper.CatAuthors(reference.Paragraphs);
-                            string ref_name = p;
-                            var query = names.Where(i => ref_name
+                            //合并多个作者行
+                            string ref_name_str = PaperProcessHelper.CatAuthors(reference.Paragraphs);
+                            var match_names = names.Where(i => ref_name_str
                                               .Contains(PaperProcessHelper.GetNameAbbr(i)));
 
-                            reference.MatchedAuthors = query.ToList();
+                            reference.MatchedAuthors = match_names.ToList();
 
-                            //得到匹配到的数字
-                            int result = query.Count();
+                            //得到匹配到的数字，标记该引用文献属于自引还是他引
+                            int result = match_names.Count();
                             reference.ReferenceType = result > 0 ? PaperReferenceType.Self : PaperReferenceType.Other;
+
                         }
                         else
                         {
                             reference.NoneStandardInformation = "此文献不包含作者段落";
                         }
+
+
                     }
                 }
                 else
                 {
                     job.Master.NoneStandardInformation = "此文献不包含作者段落";
                 }
+
             }
 
         }
@@ -215,34 +230,10 @@ namespace Experiment
         /// </summary>
         /// <param name="jobList"></param>
         /// <param name="filePath"></param>
-        public void Output(JobList jobList, string newFilePath, OutputType outputType, bool isUnderLine)
+        public void Output(JobList jobList, string newFilePath, OutputType outputType, bool isUnderLine = false)
         {
             using (DocX doc = DocX.Create(newFilePath))
             {
-                //插入标题
-                string page_title = "";
-                switch (outputType)
-                {
-                    case OutputType.All:
-                        page_title = "附件2 SCI-E引用 [自引+他引]";
-                        break;
-                    case OutputType.Self:
-                        page_title = "附件2 SCI-E引用 [自引]";
-                        break;
-                    case OutputType.Other:
-                        page_title = "附件2 SCI-E引用 [他引]";
-                        break;
-                    case OutputType.SelfWithMatchedAuthors:
-                        page_title = "附件2 SCI-E引用 [自引-包含匹配到的作者]";
-                        break;
-                    case OutputType.Test:
-                        page_title = "附件2 SCI-E引用 [调试信息，用于辅助核对分析]";
-                        break;
-                    default:
-                        break;
-                }
-
-                doc.InsertParagraph(page_title, false, new Formatting() { Size = 14 });
 
                 #region 预设样式
                 Formatting formatting = new Formatting();
@@ -284,45 +275,75 @@ namespace Experiment
                 formattingBGYellow.Highlight = Highlight.yellow;
                 #endregion
 
-                string tempPara = "";
+                //插入标题
+                string tempLine = "";
+                switch (outputType)
+                {
+                    case OutputType.All:
+                        tempLine = "附件2 SCI-E引用 [自引+他引]";
+                        break;
+                    case OutputType.Self:
+                        tempLine = "附件2 SCI-E引用 [自引]";
+                        break;
+                    case OutputType.Other:
+                        tempLine = "附件2 SCI-E引用 [他引]";
+                        break;
+                    case OutputType.Other2:
+                        tempLine = "附件2 SCI-E引用 [只有他引统计]";
+                        break;
+                    case OutputType.SelfWithMatchedAuthors:
+                        tempLine = "附件2 SCI-E引用 [自引-包含匹配到的作者]";
+                        break;
+                    case OutputType.Test:
+                        tempLine = "附件2 SCI-E引用 [调试信息，用于辅助核对分析]";
+                        break;
+                    default:
+                        break;
+                }
+
+                doc.InsertParagraph(tempLine, false, new Formatting() { Size = 14 });
+
+                //插入全局统计信息
+                doc.InsertParagraph();
+                tempLine = $"全局统计信息";
+                doc.InsertParagraph(tempLine, false, formattingBoldBlue);
+                tempLine = $"共处理：总被引文献={jobList.AllPaperCount},总引用文献={jobList.AllReferenceCount}";
+                doc.InsertParagraph(tempLine, false, formattingBoldBlue);
+                tempLine = $"结果：总自引={jobList.AllSelfReferenceCount}，总他引={jobList.AllOtherReferenceCount}，总未定={jobList.AllUnSetReferenceCount}";
+                doc.InsertParagraph(tempLine, false, formattingBoldBlue);
+                doc.InsertParagraph();
+                //编号
                 int master_Counter = 1;
-                int reference_Counter = 1;
                 foreach (var job in jobList.Jobs)
                 {
-                    //统计文献数目
-                    int ref_count = job.References.Count;
-                    int ref_self_count = job.References.Where(r =>
-                                                    r.ReferenceType == PaperReferenceType.Self).Count();
-                    int ref_other_count = job.References.Where(r =>
-                                                    r.ReferenceType == PaperReferenceType.Other).Count();
-                    int ref_unset = job.References.Where(r =>
-                                                    r.ReferenceType == PaperReferenceType.UnSet).Count();
 
-
-                    tempPara = $"{master_Counter}.被引文献:";
-                    var p_reference_title = doc.InsertParagraph(tempPara, false, formattingBold);
+                    tempLine = $"{master_Counter}.被引文献:";
+                    var p_reference_title = doc.InsertParagraph(tempLine, false, formattingBold);
                     string statistic = "";
                     switch (outputType)
                     {
                         case OutputType.All:
-                            statistic = $"(被引{ref_count}自引{ref_self_count}他引{ref_other_count})";
+                            statistic = $"(被引{job.ReferenceCount}自引{job.SelfReferenceCount}他引{job.OtherReferenceCount})";
                             break;
                         case OutputType.Self:
-                            statistic = $"(被引{ref_count}自引{ref_self_count})";
+                            statistic = $"(被引{job.ReferenceCount}自引{job.SelfReferenceCount})";
                             break;
                         case OutputType.Other:
-                            statistic = $"(被引{ref_count}他引{ref_other_count})";
+                            statistic = $"(被引{job.ReferenceCount}他引{job.OtherReferenceCount})";
+                            break;
+                        case OutputType.Other2:
+                            statistic = $"(他引{job.OtherReferenceCount})";
                             break;
                         case OutputType.SelfWithMatchedAuthors:
-                            statistic = $"(被引{ref_count}自引{ref_self_count})";
+                            statistic = $"(被引{job.ReferenceCount}自引{job.SelfReferenceCount})";
                             break;
                         case OutputType.Test:
-                            statistic = $"(被引{ref_count}自引{ref_self_count}他引{ref_other_count}未定{ref_unset})";
+                            statistic = $"(被引{job.ReferenceCount}自引{job.SelfReferenceCount}他引{job.OtherReferenceCount})";
                             break;
                         default:
                             break;
                     }
-                    p_reference_title.InsertText(tempPara.Length, statistic, false, formattingBoldBlue);
+                    p_reference_title.InsertText(tempLine.Length, statistic, false, formattingBoldBlue);
 
                     //测试信息输出
                     if (outputType == OutputType.Test)
@@ -342,6 +363,7 @@ namespace Experiment
                     {
                         doc.InsertParagraph($"{paragraph.Key}:{paragraph.Value}", false, formatting);
                     }
+
                     master_Counter++;
 
                     string ref_title = "引用文献:";
@@ -356,6 +378,9 @@ namespace Experiment
                         case OutputType.Other:
                             ref_title += "[他引]";
                             break;
+                        case OutputType.Other2:
+                            ref_title += "[他引]";
+                            break;
                         case OutputType.SelfWithMatchedAuthors:
                             ref_title += "[自引]";
                             break;
@@ -364,10 +389,11 @@ namespace Experiment
                     }
 
                     doc.InsertParagraph(ref_title, false, formattingBold);
+
                     #region 处理引用文献
                     //这里要对引用文献类型进行区分
 
-                    reference_Counter = 1;
+                    int reference_Counter = 1;
                     switch (outputType)
                     {
                         case OutputType.All:
@@ -377,8 +403,8 @@ namespace Experiment
                             {
                                 foreach (var reference in misson_all)
                                 {
-                                    tempPara = $"第{reference_Counter}条，共{ref_count}条";
-                                    doc.InsertParagraph(tempPara, false, formatting);
+                                    tempLine = $"第{reference_Counter}条，共{misson_all.Count}条";
+                                    doc.InsertParagraph(tempLine, false, formatting);
                                     foreach (var paragraph in reference.Paragraphs)
                                     {
                                         //标记自引的标题
@@ -409,8 +435,8 @@ namespace Experiment
                             {
                                 foreach (var reference in misson_self)
                                 {
-                                    tempPara = $"第{reference_Counter}条，共{ref_self_count}条";
-                                    doc.InsertParagraph(tempPara, false, formatting);
+                                    tempLine = $"第{reference_Counter}条，共{misson_self.Count()}条";
+                                    doc.InsertParagraph(tempLine, false, formatting);
                                     foreach (var paragraph in reference.Paragraphs)
                                     {
 
@@ -433,8 +459,8 @@ namespace Experiment
                             {
                                 foreach (var reference in misson_other)
                                 {
-                                    tempPara = $"第{reference_Counter}条，共{ref_other_count}条";
-                                    doc.InsertParagraph(tempPara, false, formatting);
+                                    tempLine = $"第{reference_Counter}条，共{misson_other.Count()}条";
+                                    doc.InsertParagraph(tempLine, false, formatting);
                                     foreach (var paragraph in reference.Paragraphs)
                                     {
                                         doc.InsertParagraph($"{paragraph.Key}:{paragraph.Value}", false, formatting);
@@ -455,8 +481,8 @@ namespace Experiment
                             {
                                 foreach (var reference in misson_self_with_authors)
                                 {
-                                    tempPara = $"第{reference_Counter}条，共{ref_self_count}条";
-                                    doc.InsertParagraph(tempPara, false, formatting);
+                                    tempLine = $"第{reference_Counter}条，共{misson_self_with_authors.Count()}条";
+                                    doc.InsertParagraph(tempLine, false, formatting);
 
                                     if (reference.MatchedAuthors.Count > 0)
                                     {
@@ -492,9 +518,9 @@ namespace Experiment
                             {
                                 foreach (var reference in misson_test)
                                 {
-                                    tempPara = $"第{reference_Counter}条，共{ref_count}条";
+                                    tempLine = $"第{reference_Counter}条，共{misson_test.Count}条";
 
-                                    doc.InsertParagraph(tempPara, false, formatting);
+                                    doc.InsertParagraph(tempLine, false, formatting);
 
                                     //输出文献格式信息
                                     if (reference.NoneStandardInformation != "")

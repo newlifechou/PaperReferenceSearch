@@ -50,6 +50,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="OptionAnalyse.cs" />
+    <Compile Include="OptionOutput.cs" />
+    <Compile Include="OptionResolve.cs" />
     <Compile Include="OutputType.cs" />
     <Compile Include="Paper.cs" />
     <Compile Include="JobUnit.cs" />

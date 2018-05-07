@@ -138,21 +138,21 @@ namespace Experiment
             return char.IsLower(firstOne);
         }
 
-        public static string AddPostfix(Dictionary<string, string> dict, string prefix)
+        public static string AddPostfix(Dictionary<string, string> dict, string prefix, char symbol = '*')
         {
             if (dict.Count == 0) return "";
             int i = 1;
             string postfix = "";
             while (dict.ContainsKey(prefix))
             {
-                postfix = new string('A', i);
+                postfix = new string(symbol, i);
                 prefix += postfix;
                 i++;
             }
             return postfix;
         }
 
-        public static string CatAuthors(Dictionary<string,string> dict)
+        public static string CatAuthors(Dictionary<string, string> dict)
         {
             StringBuilder sb = new StringBuilder();
             var query = from p in dict
