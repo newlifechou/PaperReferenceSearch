@@ -125,6 +125,7 @@
                     Style="{StaticResource StyleButtonCommon}" Foreground="Blue" FontWeight="Bold"
                     Command="{Binding Start}"/>
         </Grid>
+        
         <ProgressBar Grid.Row="5" Height="5" Maximum="100" Minimum="0" Margin="3 0"
                      Value="{Binding CurrentProgress}"/>
         <TextBox Name="TxtStatus" Grid.Row="6" Style="{StaticResource StyleTextMultiLine}"
