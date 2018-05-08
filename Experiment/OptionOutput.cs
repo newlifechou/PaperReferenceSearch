@@ -8,6 +8,7 @@ namespace Experiment
 {
     public class OptionOutput
     {
-        public bool IsUnderLine { get; set; } = false;
+        public bool IsShowSelfReferenceTitleUnderLine { get; set; } = false;
+        public bool IsShowTotalStatistic { get; set; } = true;
     }
 }

@@ -176,9 +176,6 @@
     <Resource Include="Resource\Images\Strawberry.png" />
   </ItemGroup>
   <ItemGroup>
-    <WCFMetadata Include="Connected Services\" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\Experiment\Experiment.csproj">
       <Project>{d027141c-ee9f-48cb-bbcf-5345639db271}</Project>
       <Name>Experiment</Name>

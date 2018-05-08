@@ -38,10 +38,10 @@ namespace Experiment
                 Console.WriteLine($"共被引用{job.References.Count},自引有{job.References.Count - self_ref_count}，他引{self_ref_count},");
             }
 
-
-            process.Output(jobList, "dataAll.docx", OutputType.All, false);
-            process.Output(jobList, "dataSelf.docx", OutputType.Self, false);
-            process.Output(jobList, "dataOther.docx", OutputType.Other, false);
+            var option = new OptionOutput { IsShowTotalStatistic = true, IsShowSelfReferenceTitleUnderLine = false };
+            process.Output(jobList, "dataAll.docx", OutputType.All, option);
+            process.Output(jobList, "dataSelf.docx", OutputType.Self, option);
+            process.Output(jobList, "dataOther.docx", OutputType.Other, option);
             Console.WriteLine("输出到docx文件");
 
             Console.WriteLine("done");

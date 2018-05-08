@@ -24,8 +24,10 @@ namespace PaperReferenceSearch
             inputPath = System.IO.Path.Combine(Environment.CurrentDirectory, "DataSample");
             outputPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
             canOpenOutputFolder = true;
-            IsUnderLine = false;
+            IsShowSelfReferenceTitleUnderLine = false;
+            IsShowTotalStatistic = true;
             IsOnlyMatchFirstAuthor = false;
+
             CurrentProgress = 0;
             isStartEnable = true;
 
@@ -78,39 +80,46 @@ namespace PaperReferenceSearch
                 {
                     var joblist = service.Resolve(file.FullName);
 
-                    service.Analyse(joblist,IsOnlyMatchFirstAuthor);
+                    service.Analyse(joblist, IsOnlyMatchFirstAuthor);
+
+                    //构造输出选项
+                    var output_options = new OptionOutput()
+                    {
+                        IsShowSelfReferenceTitleUnderLine = IsShowSelfReferenceTitleUnderLine,
+                        IsShowTotalStatistic = IsShowTotalStatistic
+                    };
 
                     var fileNameNoExtension = Path.GetFileNameWithoutExtension(file.FullName);
 
                     //输出全类型
                     var output_all = Path.Combine(mainFolder, $"{fileNameNoExtension}_全.docx");
-                    service.Output(joblist, output_all, OutputType.All, IsUnderLine);
+                    service.Output(joblist, output_all, OutputType.All, output_options);
                     AppendStatusMessage($"输出文件:{output_all}");
 
                     //输出自引类型
                     var output_self = Path.Combine(mainFolder, $"{fileNameNoExtension}_自引.docx");
-                    service.Output(joblist, output_self, OutputType.Self, IsUnderLine);
+                    service.Output(joblist, output_self, OutputType.Self, output_options);
                     AppendStatusMessage($"输出文件:{output_self}");
 
                     //输出他引类型
                     var output_other = Path.Combine(mainFolder, $"{fileNameNoExtension}_他引.docx");
-                    service.Output(joblist, output_other, OutputType.Other, IsUnderLine);
+                    service.Output(joblist, output_other, OutputType.Other, output_options);
                     AppendStatusMessage($"输出文件:{output_other}");
 
                     //输出他引类型-仅包含他引统计信息
                     var output_other2 = Path.Combine(mainFolder, $"{fileNameNoExtension}_他引_仅包含他引统计.docx");
-                    service.Output(joblist, output_other2, OutputType.Other2, IsUnderLine);
+                    service.Output(joblist, output_other2, OutputType.Other2, output_options);
                     AppendStatusMessage($"输出文件:{output_other2}");
 
                     //输出自引包含匹配到的作者列表
                     var output_self_with_matched_authors =
                         Path.Combine(mainFolder, $"{fileNameNoExtension}_自引_包括匹配到的作者.docx");
-                    service.Output(joblist, output_self_with_matched_authors, OutputType.SelfWithMatchedAuthors, IsUnderLine);
+                    service.Output(joblist, output_self_with_matched_authors, OutputType.SelfWithMatchedAuthors, output_options);
                     AppendStatusMessage($"输出文件:{output_self_with_matched_authors}");
 
                     //输出测试类型
                     var output_test = Path.Combine(mainFolder, $"{fileNameNoExtension}_全_调试.docx");
-                    service.Output(joblist, output_test, OutputType.Test, IsUnderLine);
+                    service.Output(joblist, output_test, OutputType.Test, output_options);
                     AppendStatusMessage($"输出文件:{output_test}");
 
 
@@ -290,18 +299,32 @@ namespace PaperReferenceSearch
             }
         }
 
-        private bool isUnderLine;
-        public bool IsUnderLine
+        private bool isShowSelfReferenceTitleUnderLine;
+        public bool IsShowSelfReferenceTitleUnderLine
         {
 
             get
             {
-                return isUnderLine;
+                return isShowSelfReferenceTitleUnderLine;
             }
             set
             {
-                isUnderLine = value;
-                RaisePropertyChanged(nameof(IsUnderLine));
+                isShowSelfReferenceTitleUnderLine = value;
+                RaisePropertyChanged(nameof(IsShowSelfReferenceTitleUnderLine));
+            }
+        }
+
+        private bool isShowTotalStatistic;
+        public bool IsShowTotalStatistic
+        {
+            get
+            {
+                return isShowTotalStatistic;
+            }
+            set
+            {
+                isShowTotalStatistic = value;
+                RaisePropertyChanged(nameof(IsShowTotalStatistic));
             }
         }
 

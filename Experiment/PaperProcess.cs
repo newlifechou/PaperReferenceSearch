@@ -230,7 +230,7 @@ namespace Experiment
         /// </summary>
         /// <param name="jobList"></param>
         /// <param name="filePath"></param>
-        public void Output(JobList jobList, string newFilePath, OutputType outputType, bool isUnderLine = false)
+        public void Output(JobList jobList, string newFilePath, OutputType outputType, OptionOutput option)
         {
             using (DocX doc = DocX.Create(newFilePath))
             {
@@ -289,7 +289,7 @@ namespace Experiment
                         tempLine = "附件2 SCI-E引用 [他引]";
                         break;
                     case OutputType.Other2:
-                        tempLine = "附件2 SCI-E引用 [只有他引统计]";
+                        tempLine = "附件2 SCI-E引用 [他引-仅他引统计]";
                         break;
                     case OutputType.SelfWithMatchedAuthors:
                         tempLine = "附件2 SCI-E引用 [自引-包含匹配到的作者]";
@@ -304,14 +304,18 @@ namespace Experiment
                 doc.InsertParagraph(tempLine, false, new Formatting() { Size = 14 });
 
                 //插入全局统计信息
-                doc.InsertParagraph();
-                tempLine = $"全局统计信息";
-                doc.InsertParagraph(tempLine, false, formattingBoldBlue);
-                tempLine = $"共处理：总被引文献={jobList.AllPaperCount},总引用文献={jobList.AllReferenceCount}";
-                doc.InsertParagraph(tempLine, false, formattingBoldBlue);
-                tempLine = $"结果：总自引={jobList.AllSelfReferenceCount}，总他引={jobList.AllOtherReferenceCount}，总未定={jobList.AllUnSetReferenceCount}";
-                doc.InsertParagraph(tempLine, false, formattingBoldBlue);
-                doc.InsertParagraph();
+                if (option.IsShowTotalStatistic)
+                {
+                    doc.InsertParagraph();
+                    tempLine = $"全局统计信息";
+                    doc.InsertParagraph(tempLine, false, formattingBoldBlue);
+                    tempLine = $"共处理：总被引数={jobList.AllPaperCount},总引用数={jobList.AllReferenceCount}";
+                    doc.InsertParagraph(tempLine, false, formattingBoldBlue);
+                    tempLine = $"结果：总自引数={jobList.AllSelfReferenceCount}，总他引数={jobList.AllOtherReferenceCount}，总未定数={jobList.AllUnSetReferenceCount}";
+                    doc.InsertParagraph(tempLine, false, formattingBoldBlue);
+                    doc.InsertParagraph();
+                }
+
                 //编号
                 int master_Counter = 1;
                 foreach (var job in jobList.Jobs)
@@ -410,7 +414,7 @@ namespace Experiment
                                         //标记自引的标题
                                         if (reference.ReferenceType == PaperReferenceType.Self && paragraph.Key == "标题")
                                         {
-                                            Formatting titleFormating = isUnderLine ? formattingUnderLine : formattingBGYellow;
+                                            Formatting titleFormating = option.IsShowSelfReferenceTitleUnderLine ? formattingUnderLine : formattingBGYellow;
                                             doc.InsertParagraph($"{paragraph.Key}:{paragraph.Value}",
                                                 false, titleFormating);
                                         }
@@ -453,6 +457,7 @@ namespace Experiment
                             #endregion
                             break;
                         case OutputType.Other:
+                        case OutputType.Other2:
                             #region Output_Other
                             var misson_other = job.References.Where(r => r.ReferenceType == PaperReferenceType.Other);
                             if (misson_other.Count() > 0)
@@ -550,7 +555,7 @@ namespace Experiment
                                         //标记自引的标题
                                         if (reference.ReferenceType == PaperReferenceType.Self && paragraph.Key == "标题")
                                         {
-                                            Formatting titleFormating = isUnderLine ? formattingUnderLine : formattingBGYellow;
+                                            Formatting titleFormating = option.IsShowSelfReferenceTitleUnderLine ? formattingUnderLine : formattingBGYellow;
                                             doc.InsertParagraph($"{paragraph.Key}:{paragraph.Value}",
                                                 false, titleFormating);
                                         }
