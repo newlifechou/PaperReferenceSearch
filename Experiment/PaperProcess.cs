@@ -199,7 +199,7 @@ namespace Experiment
                             //合并多个作者行
                             string ref_name_str = PaperProcessHelper.CatAuthors(reference.Paragraphs);
                             var match_names = names.Where(i => ref_name_str
-                                              .Contains(PaperProcessHelper.GetNameAbbr(i)));
+                                              .Contains(PaperProcessHelper.GetNameAbbr(i,true)));
 
                             reference.MatchedAuthors = match_names.ToList();
 

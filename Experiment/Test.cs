@@ -15,7 +15,7 @@ namespace Experiment
             foreach (var name in names)
             {
                 Console.WriteLine(name.Trim());
-                Console.WriteLine(PaperProcessHelper.GetNameAbbr(name.Trim()).Trim());
+                Console.WriteLine(PaperProcessHelper.GetNameAbbr(name.Trim(), true).Trim());
                 Console.WriteLine(PaperProcessHelper.GetNameFull(name.Trim()).Trim());
             }
         }

@@ -100,7 +100,7 @@ namespace Experiment
         /// </summary>
         /// <param name="name"></param>
         /// <returns></returns>
-        public static string GetNameAbbr(string name)
+        public static string GetNameAbbr(string name,bool withBracket)
         {
             if (string.IsNullOrEmpty(name))
                 return null;
@@ -109,7 +109,14 @@ namespace Experiment
             if (name.Contains('('))
             {
                 int position = name.IndexOf("(");
-                result = name.Substring(0, position);
+                if (withBracket)
+                {
+                    result = name.Substring(0, position+1);
+                }
+                else
+                {
+                    result = name.Substring(0, position);
+                }
             }
             else
             {
