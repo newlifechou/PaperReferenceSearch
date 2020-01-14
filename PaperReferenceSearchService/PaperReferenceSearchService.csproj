@@ -4,16 +4,15 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{D027141C-EE9F-48CB-BBCF-5345639DB271}</ProjectGuid>
-    <OutputType>Exe</OutputType>
-    <RootNamespace>Experiment</RootNamespace>
-    <AssemblyName>Experiment</AssemblyName>
+    <ProjectGuid>{6FDBD59B-45E6-4C4C-AF9E-32BDABEEA2F7}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>PaperReferenceSearchService</RootNamespace>
+    <AssemblyName>PaperReferenceSearchService</AssemblyName>
     <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -23,7 +22,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
@@ -53,31 +51,25 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Model\DataFile.cs" />
+    <Compile Include="Model\JobList.cs" />
+    <Compile Include="Model\JobUnit.cs" />
     <Compile Include="Model\OptionAnalyse.cs" />
     <Compile Include="Model\OptionOutput.cs" />
     <Compile Include="Model\OptionResolve.cs" />
     <Compile Include="Model\OutputType.cs" />
     <Compile Include="Model\Paper.cs" />
-    <Compile Include="Model\JobUnit.cs" />
-    <Compile Include="PaperProcessService.cs" />
-    <Compile Include="PaperProcessHelper.cs" />
-    <Compile Include="Model\ProcessParameter.cs" />
-    <Compile Include="Program.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Model\PaperParagraph.cs" />
-    <Compile Include="Model\JobList.cs" />
     <Compile Include="Model\PaperReferenceType.cs" />
-    <Compile Include="PublicWord.cs" />
-    <Compile Include="Test.cs" />
-    <Compile Include="TestHelper.cs" />
-    <Compile Include="ValidResult.cs" />
+    <Compile Include="Model\ProcessParameter.cs" />
+    <Compile Include="PaperProcessHelper.cs" />
+    <Compile Include="PaperProcessService.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Model\PublicWord.cs" />
+    <Compile Include="Model\ValidResult.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config" />
     <None Include="packages.config" />
-    <None Include="样板输入.docx">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <Content Include="处理思路.txt" />

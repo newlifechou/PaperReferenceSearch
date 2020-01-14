@@ -37,6 +37,9 @@
     <ApplicationIcon>Resource\Images\chart-icon.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="CommonHelper">
+      <HintPath>..\..\PMS\CommonHelper\bin\Debug\CommonHelper.dll</HintPath>
+    </Reference>
     <Reference Include="CommonServiceLocator, Version=2.0.2.0, Culture=neutral, PublicKeyToken=489b6accfaf20ef0, processorArchitecture=MSIL">
       <HintPath>..\packages\CommonServiceLocator.2.0.2\lib\net45\CommonServiceLocator.dll</HintPath>
     </Reference>
@@ -84,6 +87,7 @@
       <DependentUpon>StandardFormat.xaml</DependentUpon>
     </Compile>
     <Compile Include="ConverterBooleanToString.cs" />
+    <Compile Include="TestHelper.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -176,12 +180,6 @@
     <Resource Include="Resource\Images\Strawberry.png" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Experiment\Experiment.csproj">
-      <Project>{d027141c-ee9f-48cb-bbcf-5345639db271}</Project>
-      <Name>Experiment</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Resource\Images\kiwi.ico" />
     <Resource Include="Resource\Images\kiwi.png" />
   </ItemGroup>
@@ -192,6 +190,15 @@
   <ItemGroup>
     <Resource Include="Resource\Images\chart-icon.png" />
     <Resource Include="Resource\Images\chart-icon.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\PaperReferenceSearchService\PaperReferenceSearchService.csproj">
+      <Project>{6fdbd59b-45e6-4c4c-af9e-32bdabeea2f7}</Project>
+      <Name>PaperReferenceSearchService</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="ReadMe.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

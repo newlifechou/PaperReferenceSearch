@@ -6,25 +6,107 @@ using System.Text;
 using System.Threading.Tasks;
 using Xceed.Words.NET;
 using CommonHelper;
+using PaperReferenceSearchService.Model;
+using System.Diagnostics;
 
-namespace Experiment
+namespace PaperReferenceSearchService
 {
     /// <summary>
     /// 自引他引文献作者处理核心服务类
     /// </summary>
     public class PaperProcessService
     {
-        //公共参数
+
+        public event EventHandler<string> UpdateStatusInformation;
+        public event EventHandler<double> UpdateProgressBarValue;
+
+        //处理参数
         public ProcessParameter Parameter;
         public PaperProcessService()
         {
             Parameter = new ProcessParameter();
         }
 
-
-        public void Run()
+        private void UpdateStatus(string msg)
         {
+            UpdateStatusInformation?.Invoke(this, msg);
+        }
 
+        private void UpdateProgress(double value)
+        {
+            UpdateProgressBarValue?.Invoke(this, value);
+        }
+        /// <summary>
+        /// 执行主程序
+        /// </summary>
+        public void Run(IEnumerable<DataFile> jobs)
+        {
+            Stopwatch sw = new Stopwatch();
+            sw.Reset();
+            sw.Start();
+
+            UpdateStatus("####开始处理格式规范的有效文件");
+            string mainFolder = XSHelper.FileHelper.CreateFolder(Parameter.OutputFolder,
+                                                                    XSHelper.FileHelper.GetNameByDate());
+
+            int job_total_count = jobs.Count();
+            int job_counter = 0;
+
+            UpdateStatus("####分析中，请等待");
+            foreach (var file in jobs)
+            {
+                var joblist = Resolve(file.FullName);
+                Analyse(joblist);
+
+
+                var fileNameNoExtension = Path.GetFileNameWithoutExtension(file.FullName);
+
+                //输出全类型
+                var output_all = Path.Combine(mainFolder, $"{fileNameNoExtension}_全.docx");
+                Output(joblist, output_all, OutputType.All);
+                UpdateStatus($"输出文件:{output_all}");
+
+                //输出自引类型
+                var output_self = Path.Combine(mainFolder, $"{fileNameNoExtension}_自引.docx");
+                Output(joblist, output_self, OutputType.Self);
+                UpdateStatus($"输出文件:{output_self}");
+
+                //输出他引类型
+                var output_other = Path.Combine(mainFolder, $"{fileNameNoExtension}_他引.docx");
+                Output(joblist, output_other, OutputType.Other);
+                UpdateStatus($"输出文件:{output_other}");
+
+                //输出他引类型-仅包含他引统计信息
+                var output_other2 = Path.Combine(mainFolder, $"{fileNameNoExtension}_他引_仅包含他引统计.docx");
+                Output(joblist, output_other2, OutputType.Other2);
+                UpdateStatus($"输出文件:{output_other2}");
+
+                //输出自引包含匹配到的作者列表
+                var output_self_with_matched_authors =
+                    Path.Combine(mainFolder, $"{fileNameNoExtension}_自引_包括匹配到的作者.docx");
+                Output(joblist, output_self_with_matched_authors, OutputType.SelfWithMatchedAuthors);
+                UpdateStatus($"输出文件:{output_self_with_matched_authors}");
+
+                //输出测试类型
+                var output_test = Path.Combine(mainFolder, $"{fileNameNoExtension}_全_调试.docx");
+                Output(joblist, output_test, OutputType.Test);
+                UpdateStatus($"输出文件:{output_test}");
+
+
+                //记录进度
+                job_counter++;
+                int currentProgress = (int)(job_counter * 1.0f / job_total_count * 100);
+                UpdateProgress(currentProgress);
+
+                //Debug.WriteLine($"{currentProgress}-{job_counter}-{job_total_count}");
+            }
+            sw.Stop();
+
+            UpdateStatus($"处理完毕，共处理{job_total_count}个文件，耗时{sw.ElapsedMilliseconds}ms");
+            if (Parameter.CanOpenOuputFolder)
+            {
+                Process.Start(mainFolder);
+            }
         }
 
         /// <summary>
@@ -133,8 +215,7 @@ namespace Experiment
 
                     if (tempJobUnit.Master.Paragraphs.ContainsKey(tempPara.Prefix))
                     {
-                        System.Diagnostics.Debug.WriteLine($"重复键");
-                        TestHelper.TreeIt(tempJobUnit.Master.Paragraphs);
+                        //System.Diagnostics.Debug.WriteLine($"重复键");
                         tempJobUnit.Master.NoneStandardInformation += $"[{tempPara.Prefix}]行前缀重复 ";
                         //如果有重复，添加新后缀
                         tempPara.Prefix += PaperProcessHelper.AddPostfix(tempJobUnit.Master.Paragraphs,
@@ -149,8 +230,7 @@ namespace Experiment
                     tempPara = PaperProcessHelper.DivideParagraph(line);
                     if (tempPaper.Paragraphs.ContainsKey(tempPara.Prefix))
                     {
-                        System.Diagnostics.Debug.WriteLine($"重复键");
-                        TestHelper.TreeIt(tempPaper.Paragraphs);
+                        //System.Diagnostics.Debug.WriteLine($"重复键");
 
                         tempPaper.NoneStandardInformation += $"[{tempPara.Prefix}]行前缀重复 ";
                         tempPara.Prefix += PaperProcessHelper.AddPostfix(tempPaper.Paragraphs,
@@ -185,7 +265,7 @@ namespace Experiment
         /// 分析自引他引
         /// </summary>
         /// <param name="jobList"></param>
-        public void Analyse(JobList jobList, bool isOnlyMatchFirstAuthor = false, bool isOnlyMatchNameAbbr = true)
+        public void Analyse(JobList jobList)
         {
             string p;
             //处理自引他引，对References进行标记
@@ -198,7 +278,7 @@ namespace Experiment
                     string[] temp_names = PaperProcessHelper.DivideNames(p);
 
                     List<string> names = new List<string>();
-                    if (isOnlyMatchFirstAuthor && temp_names.Length > 0)
+                    if (Parameter.IsOnlyMatchFirstAuthor && temp_names.Length > 0)
                     {
                         //只添加第一个作者到要匹配的列表中
                         names.Add(temp_names[0].Trim());
@@ -218,7 +298,7 @@ namespace Experiment
                             var match_names = names.Where(i =>
                             {
                                 string key_pattern = "";
-                                if (isOnlyMatchNameAbbr)
+                                if (Parameter.IsOnlyMatchNameAbbr)
                                 {
                                     key_pattern = PaperProcessHelper.GetNameAbbr(i, true);
                                 }
@@ -258,7 +338,7 @@ namespace Experiment
         /// </summary>
         /// <param name="jobList"></param>
         /// <param name="filePath"></param>
-        public void Output(JobList jobList, string newFilePath, OutputType outputType, OptionOutput option, bool isMatchNameAbbr = false)
+        public void Output(JobList jobList, string newFilePath, OutputType outputType)
         {
             using (DocX doc = DocX.Create(newFilePath))
             {
@@ -332,7 +412,7 @@ namespace Experiment
                 doc.InsertParagraph(tempLine, false, new Formatting() { Size = 14 });
 
                 //插入全局统计信息
-                if (option.IsShowTotalStatistic)
+                if (Parameter.IsShowTotalStatistic)
                 {
                     doc.InsertParagraph();
                     tempLine = $"全局统计信息";
@@ -341,17 +421,29 @@ namespace Experiment
                     doc.InsertParagraph(tempLine, false, formattingBoldBlue);
                     tempLine = $"结果：总自引数={jobList.AllSelfReferenceCount}，总他引数={jobList.AllOtherReferenceCount}，总未定数={jobList.AllUnSetReferenceCount}";
                     doc.InsertParagraph(tempLine, false, formattingBoldBlue);
-                    if (isMatchNameAbbr)
+
+                    tempLine = "匹配模式：";
+                    if (Parameter.IsOnlyMatchNameAbbr)
                     {
-                        tempLine = "匹配模式：使用姓名缩写(包含括号)";
-                        doc.InsertParagraph(tempLine, false, formattingBoldBlue);
+                        tempLine += "使用姓名缩写(包含括号);";
+                    }
+                    else
+                    {
+                        tempLine += "使用姓名全称(不包含缩写部分);";
+                    }
+
+                    if (Parameter.IsOnlyMatchFirstAuthor)
+                    {
+                        tempLine += "只匹配第一作者;";
 
                     }
                     else
                     {
-                        tempLine = "匹配模式：使用姓名全称(不包含缩写部分)";
-                        doc.InsertParagraph(tempLine, false, formattingBoldBlue);
+                        tempLine += "匹配所有作者;";
                     }
+                    doc.InsertParagraph(tempLine, false, formattingBoldBlue);
+
+
                     doc.InsertParagraph();
                 }
 
@@ -453,7 +545,7 @@ namespace Experiment
                                         //标记自引的标题
                                         if (reference.ReferenceType == PaperReferenceType.Self && paragraph.Key == "标题")
                                         {
-                                            Formatting titleFormating = option.IsShowSelfReferenceTitleUnderLine ? formattingUnderLine : formattingBGYellow;
+                                            Formatting titleFormating = Parameter.IsShowSelfReferenceTitleUnderLine ? formattingUnderLine : formattingBGYellow;
                                             doc.InsertParagraph($"{paragraph.Key}:{paragraph.Value}",
                                                 false, titleFormating);
                                         }
@@ -594,7 +686,7 @@ namespace Experiment
                                         //标记自引的标题
                                         if (reference.ReferenceType == PaperReferenceType.Self && paragraph.Key == "标题")
                                         {
-                                            Formatting titleFormating = option.IsShowSelfReferenceTitleUnderLine ? formattingUnderLine : formattingBGYellow;
+                                            Formatting titleFormating = Parameter.IsShowSelfReferenceTitleUnderLine ? formattingUnderLine : formattingBGYellow;
                                             doc.InsertParagraph($"{paragraph.Key}:{paragraph.Value}",
                                                 false, titleFormating);
                                         }

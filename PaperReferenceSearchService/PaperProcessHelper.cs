@@ -5,15 +5,20 @@ using System.Text;
 using System.Threading.Tasks;
 using Xceed.Words.NET;
 using System.Text.RegularExpressions;
+using PaperReferenceSearchService.Model;
 
-namespace Experiment
+namespace PaperReferenceSearchService
 {
     /// <summary>
     /// 自引他引文献作者处理辅助类
     /// </summary>
     public static class PaperProcessHelper
     {
-
+        /// <summary>
+        /// 检查文献格式是否正确
+        /// </summary>
+        /// <param name="filePath"></param>
+        /// <returns></returns>
         public static ValidResult IsFormatOK(string filePath)
         {
             //一次读入内容
@@ -87,6 +92,7 @@ namespace Experiment
 
         /// <summary>
         /// 把用;隔开的姓名字符串拆成多个姓名数组
+        /// 注意 姓名前后可能有空格需要trim
         /// 例子 Ye, L (Ye, Ling); Fan, ZP (Fan, Zhipeng); Yu, B (Yu, Bo); Chang, J (Chang, Jia)
         /// </summary>
         /// <param name="n"></param>
@@ -95,8 +101,11 @@ namespace Experiment
         {
             if (string.IsNullOrEmpty(n))
                 return null;
-            string[] names = n.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
-            return names;
+            string[] rawNames = n.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
+            List<string> names = new List<string>();
+            //去除姓名前后的空格
+            rawNames.ToList().ForEach(i => names.Add(i.Trim()));
+            return names.ToArray();
         }
 
         /// <summary>
@@ -105,7 +114,7 @@ namespace Experiment
         /// <param name="name"></param>
         /// <param name="withFirstBracket"></param>
         /// <returns></returns>
-        public static string GetFullNameWithNoAbbr(string name,bool withFirstBracket)
+        public static string GetFullNameWithNoAbbr(string name, bool withFirstBracket)
         {
             if (string.IsNullOrEmpty(name))
                 return null;
@@ -177,11 +186,23 @@ namespace Experiment
             return result.Trim();
         }
 
+        /// <summary>
+        /// 判断是否是英语字母
+        /// </summary>
+        /// <param name="firstOne"></param>
+        /// <returns></returns>
         public static bool IsEnglishLetter(char firstOne)
         {
             return char.IsLower(firstOne);
         }
 
+        /// <summary>
+        /// 添加后缀
+        /// </summary>
+        /// <param name="dict"></param>
+        /// <param name="prefix"></param>
+        /// <param name="symbol"></param>
+        /// <returns></returns>
         public static string AddPostfix(Dictionary<string, string> dict, string prefix, char symbol = '*')
         {
             if (dict.Count == 0) return "";
@@ -195,7 +216,11 @@ namespace Experiment
             }
             return postfix;
         }
-
+        /// <summary>
+        /// 连接作者
+        /// </summary>
+        /// <param name="dict"></param>
+        /// <returns></returns>
         public static string CatAuthors(Dictionary<string, string> dict)
         {
             StringBuilder sb = new StringBuilder();

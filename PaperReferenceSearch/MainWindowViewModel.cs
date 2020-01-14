@@ -1,8 +1,9 @@
-﻿using Experiment;
+﻿using PaperReferenceSearchService;
+using PaperReferenceSearchService.Model;
+using CommonHelper;
+
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.CommandWpf;
-using PaperReferenceSearch.Model;
-using PaperReferenceSearch.Service;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -16,11 +17,13 @@ namespace PaperReferenceSearch
 {
     public class MainWindowViewModel : ViewModelBase
     {
+        //状态信息管理
+        private StatusHelper statusHelper = new StatusHelper();
+
         public MainWindowViewModel()
         {
             InputFiles = new ObservableCollection<DataFile>();
             statusMessage = "";
-            statusMsg = new StringBuilder();
             inputPath = System.IO.Path.Combine(Environment.CurrentDirectory, "DataSample");
             outputPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
             canOpenOutputFolder = true;
@@ -55,101 +58,66 @@ namespace PaperReferenceSearch
             try
             {
                 //2020-1-14将业务代码集中到Service中去
-
-
                 isStartEnable = false;
-                statusMsg.Clear();
+                statusHelper.ClearStatus();
+
                 if (InputFiles.Where(i => i.IsValid).Count() == 0)
                 {
-                    AppendStatusMessage("输入文件夹中的可以处理的文件个数为0");
+                    UpdateStatusMessage("输入文件夹中的可以处理的文件个数为0");
                     return;
                 }
                 var jobs = InputFiles.Where(i => i.IsValid);
-                Stopwatch sw = new Stopwatch();
-                sw.Reset();
-                sw.Start();
+
+
+                ProcessParameter parameter = new ProcessParameter();
+                parameter.InputFolder = InputPath;
+                parameter.OutputFolder = OutputPath;
+                parameter.IsOnlyMatchFirstAuthor = IsOnlyMatchFirstAuthor;
+                parameter.IsOnlyMatchNameAbbr = IsOnlyMatchNameAbbr;
+                parameter.IsShowSelfReferenceTitleUnderLine = IsShowSelfReferenceTitleUnderLine;
+                parameter.IsShowTotalStatistic = IsShowTotalStatistic;
+                parameter.CanOpenOuputFolder = CanOpenOutputFolder;
+
                 PaperProcessService service = new PaperProcessService();
-                AppendStatusMessage("####开始处理格式规范的有效文件");
-                var mainFolder = Path.Combine(OutputPath, DateTime.Now.ToString("yyMMdd"));
-                if (!Directory.Exists(mainFolder))
-                {
-                    Directory.CreateDirectory(mainFolder);
-                }
+                service.Parameter = parameter;
+                service.UpdateProgressBarValue += Service_UpdateProgressBarValue;
+                service.UpdateStatusInformation += Service_UpdateStatusInformation;
 
 
-                int job_total_count = jobs.Count();
-                int job_counter = 0;
-
-                AppendStatusMessage("####分析中，请等待");
-                foreach (var file in jobs)
-                {
-                    var joblist = service.Resolve(file.FullName);
-                    service.Analyse(joblist, IsOnlyMatchFirstAuthor, IsOnlyMatchNameAbbr);
-
-                    //构造输出选项
-                    var output_options = new OptionOutput()
-                    {
-                        IsShowSelfReferenceTitleUnderLine = IsShowSelfReferenceTitleUnderLine,
-                        IsShowTotalStatistic = IsShowTotalStatistic
-                    };
-
-                    var fileNameNoExtension = Path.GetFileNameWithoutExtension(file.FullName);
-
-                    //输出全类型
-                    var output_all = Path.Combine(mainFolder, $"{fileNameNoExtension}_全.docx");
-                    service.Output(joblist, output_all, OutputType.All, output_options,IsOnlyMatchNameAbbr);
-                    AppendStatusMessage($"输出文件:{output_all}");
-
-                    //输出自引类型
-                    var output_self = Path.Combine(mainFolder, $"{fileNameNoExtension}_自引.docx");
-                    service.Output(joblist, output_self, OutputType.Self, output_options, IsOnlyMatchNameAbbr);
-                    AppendStatusMessage($"输出文件:{output_self}");
-
-                    //输出他引类型
-                    var output_other = Path.Combine(mainFolder, $"{fileNameNoExtension}_他引.docx");
-                    service.Output(joblist, output_other, OutputType.Other, output_options, IsOnlyMatchNameAbbr);
-                    AppendStatusMessage($"输出文件:{output_other}");
-
-                    //输出他引类型-仅包含他引统计信息
-                    var output_other2 = Path.Combine(mainFolder, $"{fileNameNoExtension}_他引_仅包含他引统计.docx");
-                    service.Output(joblist, output_other2, OutputType.Other2, output_options, IsOnlyMatchNameAbbr);
-                    AppendStatusMessage($"输出文件:{output_other2}");
-
-                    //输出自引包含匹配到的作者列表
-                    var output_self_with_matched_authors =
-                        Path.Combine(mainFolder, $"{fileNameNoExtension}_自引_包括匹配到的作者.docx");
-                    service.Output(joblist, output_self_with_matched_authors, OutputType.SelfWithMatchedAuthors, output_options, IsOnlyMatchNameAbbr);
-                    AppendStatusMessage($"输出文件:{output_self_with_matched_authors}");
-
-                    //输出测试类型
-                    var output_test = Path.Combine(mainFolder, $"{fileNameNoExtension}_全_调试.docx");
-                    service.Output(joblist, output_test, OutputType.Test, output_options, IsOnlyMatchNameAbbr);
-                    AppendStatusMessage($"输出文件:{output_test}");
+                service.Run(jobs);
 
 
-                    //记录进度
-                    job_counter++;
-                    CurrentProgress = (int)(job_counter * 1.0f / job_total_count * 100);
-                    Debug.WriteLine($"{CurrentProgress}-{job_counter}-{job_total_count}");
-                }
-                sw.Stop();
-
-                AppendStatusMessage($"处理完毕，共处理{job_total_count}个文件，耗时{sw.ElapsedMilliseconds}ms");
-                if (CanOpenOutputFolder)
-                {
-                    Process.Start(mainFolder);
-                }
             }
 
             catch (Exception ex)
             {
-                AppendStatusMessage($"[Exeption]:{ex.Message}");
+                UpdateStatusMessage($"[Exeption]:{ex.Message}");
             }
             finally
             {
                 isStartEnable = true;
             }
         }
+
+        #region 消息处理方法
+        private void Service_UpdateStatusInformation(object sender, string e)
+        {
+            StatusMessage = statusHelper.InsertStatus(e);
+        }
+
+        private void Service_UpdateProgressBarValue(object sender, double e)
+        {
+            if (e >= 0 && e <= 100)
+            {
+                CurrentProgress = e;
+            }
+        }
+
+        private void UpdateStatusMessage(string msg)
+        {
+            StatusMessage = statusHelper.InsertStatus(msg);
+        }
+        #endregion
 
         private bool CanStart()
         {
@@ -160,26 +128,29 @@ namespace PaperReferenceSearch
         {
             try
             {
-                System.Diagnostics.Process.Start(file.FullName);
+                XSHelper.FileHelper.OpenFile(file.FullName);
             }
             catch (Exception ex)
             {
-                AppendStatusMessage($"[Exeption]:{ex.Message}");
+                UpdateStatusMessage($"[Exeption]:{ex.Message}");
             }
         }
 
         private void ActionChooseOutputFolder()
         {
             string description = "请选择输出文件夹用来存放输出文档";
-            string folderPath = XSHelper.ShowFolderBrowserDialog(description);
-            if (string.IsNullOrEmpty(folderPath))
+
+            PathParameter dialogResult = XSHelper.FileHelper.ShowFolderBrowserDialog(description);
+            if (!dialogResult.HasSelected) return;
+            if (string.IsNullOrEmpty(dialogResult.SelectPath))
             {
+                UpdateStatusMessage($"选择的输出数据文件夹{dialogResult.SelectPath}不存在");
                 return;
             }
             else
             {
-                OutputPath = folderPath;
-                AppendStatusMessage($"设置输出位置为{folderPath}");
+                OutputPath = dialogResult.SelectPath;
+                UpdateStatusMessage($"设置输出位置为{OutputPath}");
             }
         }
 
@@ -195,19 +166,19 @@ namespace PaperReferenceSearch
         private void ActionChooseInputFolder()
         {
             string description = "请选择存放要处理文档的文件夹\r\n确保格式是docx且符合规范要求";
-            string folderPath = XSHelper.ShowFolderBrowserDialog(description);
-            if (string.IsNullOrEmpty(folderPath))
+            PathParameter dialogResult = XSHelper.FileHelper.ShowFolderBrowserDialog(description);
+            if (!dialogResult.HasSelected)
                 return;
 
-            InputPath = folderPath;
-            if (!Directory.Exists(folderPath))
+            if (!Directory.Exists(dialogResult.SelectPath))
             {
+                UpdateStatusMessage($"选择的输入数据文件夹{dialogResult.SelectPath}不存在");
                 return;
             }
             else
             {
-                InputPath = folderPath;
-                AppendStatusMessage($"设置输入数据文件夹为{InputPath}");
+                InputPath = dialogResult.SelectPath;
+                UpdateStatusMessage($"设置输入数据文件夹为{InputPath}");
                 CurrentProgress = 0;
                 LoadInputFiles();
             }
@@ -216,7 +187,7 @@ namespace PaperReferenceSearch
 
         private void LoadInputFiles()
         {
-            statusMsg.Clear();
+            statusHelper.ClearStatus();
             if (Directory.Exists(InputPath))
             {
                 InputFiles.Clear();
@@ -230,16 +201,16 @@ namespace PaperReferenceSearch
                         Name = tempFile.Name,
                         FullName = tempFile.FullName
                     };
-                    var valid_result = PaperProcessHelper.IsFormatOK(tempFile.FullName);
-                    tempData.IsValid = valid_result.IsValid;
-                    tempData.ValidInformation = valid_result.ValidInformation;
+                    var validation_result = PaperProcessHelper.IsFormatOK(tempFile.FullName);
+                    tempData.IsValid = validation_result.IsValid;
+                    tempData.ValidInformation = validation_result.ValidInformation;
 
                     InputFiles.Add(tempData);
-                    AppendStatusMessage($"输入文件{fileName}");
+                    UpdateStatusMessage($"输入文件{fileName}");
                 }
                 int valid_count = InputFiles.Where(i => i.IsValid).Count();
-                AppendStatusMessage($"共添加了{InputFiles.Count}个输入文件,有效文件共{valid_count}个");
-                AppendStatusMessage("程序仅辅助判定文件是否有效,无效文件处理时将跳过");
+                UpdateStatusMessage($"共添加了{InputFiles.Count}个输入文件,有效文件共{valid_count}个");
+                UpdateStatusMessage("程序仅辅助判定文件是否有效,无效文件处理时将跳过");
 
             }
         }
@@ -359,8 +330,8 @@ namespace PaperReferenceSearch
                 RaisePropertyChanged(nameof(IsOnlyMatchNameAbbr));
             }
         }
-        private int currentProgress;
-        public int CurrentProgress
+        private double currentProgress;
+        public double CurrentProgress
         {
             get
             {
@@ -376,13 +347,6 @@ namespace PaperReferenceSearch
 
         #region 私有变量
         private bool isStartEnable;
-        private StringBuilder statusMsg;
-        private void AppendStatusMessage(string msg)
-        {
-            //statusMsg.AppendLine(msg);
-            statusMsg.Insert(0, $"{msg}\r\n");
-            StatusMessage = statusMsg.ToString();
-        }
         #endregion
 
         #region 公开命令
