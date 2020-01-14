@@ -27,6 +27,7 @@ namespace PaperReferenceSearch
             IsShowSelfReferenceTitleUnderLine = false;
             IsShowTotalStatistic = true;
             IsOnlyMatchFirstAuthor = false;
+            IsOnlyMatchNameAbbr = true;
 
             CurrentProgress = 0;
             isStartEnable = true;
@@ -53,6 +54,9 @@ namespace PaperReferenceSearch
         {
             try
             {
+                //2020-1-14将业务代码集中到Service中去
+
+
                 isStartEnable = false;
                 statusMsg.Clear();
                 if (InputFiles.Where(i => i.IsValid).Count() == 0)
@@ -64,7 +68,7 @@ namespace PaperReferenceSearch
                 Stopwatch sw = new Stopwatch();
                 sw.Reset();
                 sw.Start();
-                PaperProcess service = new PaperProcess();
+                PaperProcessService service = new PaperProcessService();
                 AppendStatusMessage("####开始处理格式规范的有效文件");
                 var mainFolder = Path.Combine(OutputPath, DateTime.Now.ToString("yyMMdd"));
                 if (!Directory.Exists(mainFolder))
@@ -76,11 +80,11 @@ namespace PaperReferenceSearch
                 int job_total_count = jobs.Count();
                 int job_counter = 0;
 
+                AppendStatusMessage("####分析中，请等待");
                 foreach (var file in jobs)
                 {
                     var joblist = service.Resolve(file.FullName);
-
-                    service.Analyse(joblist, IsOnlyMatchFirstAuthor);
+                    service.Analyse(joblist, IsOnlyMatchFirstAuthor, IsOnlyMatchNameAbbr);
 
                     //构造输出选项
                     var output_options = new OptionOutput()
@@ -93,33 +97,33 @@ namespace PaperReferenceSearch
 
                     //输出全类型
                     var output_all = Path.Combine(mainFolder, $"{fileNameNoExtension}_全.docx");
-                    service.Output(joblist, output_all, OutputType.All, output_options);
+                    service.Output(joblist, output_all, OutputType.All, output_options,IsOnlyMatchNameAbbr);
                     AppendStatusMessage($"输出文件:{output_all}");
 
                     //输出自引类型
                     var output_self = Path.Combine(mainFolder, $"{fileNameNoExtension}_自引.docx");
-                    service.Output(joblist, output_self, OutputType.Self, output_options);
+                    service.Output(joblist, output_self, OutputType.Self, output_options, IsOnlyMatchNameAbbr);
                     AppendStatusMessage($"输出文件:{output_self}");
 
                     //输出他引类型
                     var output_other = Path.Combine(mainFolder, $"{fileNameNoExtension}_他引.docx");
-                    service.Output(joblist, output_other, OutputType.Other, output_options);
+                    service.Output(joblist, output_other, OutputType.Other, output_options, IsOnlyMatchNameAbbr);
                     AppendStatusMessage($"输出文件:{output_other}");
 
                     //输出他引类型-仅包含他引统计信息
                     var output_other2 = Path.Combine(mainFolder, $"{fileNameNoExtension}_他引_仅包含他引统计.docx");
-                    service.Output(joblist, output_other2, OutputType.Other2, output_options);
+                    service.Output(joblist, output_other2, OutputType.Other2, output_options, IsOnlyMatchNameAbbr);
                     AppendStatusMessage($"输出文件:{output_other2}");
 
                     //输出自引包含匹配到的作者列表
                     var output_self_with_matched_authors =
                         Path.Combine(mainFolder, $"{fileNameNoExtension}_自引_包括匹配到的作者.docx");
-                    service.Output(joblist, output_self_with_matched_authors, OutputType.SelfWithMatchedAuthors, output_options);
+                    service.Output(joblist, output_self_with_matched_authors, OutputType.SelfWithMatchedAuthors, output_options, IsOnlyMatchNameAbbr);
                     AppendStatusMessage($"输出文件:{output_self_with_matched_authors}");
 
                     //输出测试类型
                     var output_test = Path.Combine(mainFolder, $"{fileNameNoExtension}_全_调试.docx");
-                    service.Output(joblist, output_test, OutputType.Test, output_options);
+                    service.Output(joblist, output_test, OutputType.Test, output_options, IsOnlyMatchNameAbbr);
                     AppendStatusMessage($"输出文件:{output_test}");
 
 
@@ -342,7 +346,19 @@ namespace PaperReferenceSearch
             }
         }
 
-
+        private bool isOnlyMatchNameAbbr;
+        public bool IsOnlyMatchNameAbbr
+        {
+            get
+            {
+                return isOnlyMatchNameAbbr;
+            }
+            set
+            {
+                isOnlyMatchNameAbbr = value;
+                RaisePropertyChanged(nameof(IsOnlyMatchNameAbbr));
+            }
+        }
         private int currentProgress;
         public int CurrentProgress
         {

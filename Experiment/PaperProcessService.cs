@@ -8,8 +8,20 @@ using Xceed.Words.NET;
 
 namespace Experiment
 {
-    public class PaperProcess
+    public class PaperProcessService
     {
+        //公共参数
+        private ProcessParameter parameter;
+        public PaperProcessService()
+        {
+            parameter = new ProcessParameter();
+        }
+
+        
+        public void Run()
+        {
+
+        }
 
         /// <summary>
         /// 解析word文档docx
@@ -169,7 +181,7 @@ namespace Experiment
         /// 分析自引他引
         /// </summary>
         /// <param name="jobList"></param>
-        public void Analyse(JobList jobList, bool isOnlyMatchFirstAuthor = false)
+        public void Analyse(JobList jobList, bool isOnlyMatchFirstAuthor = false, bool isOnlyMatchNameAbbr = true)
         {
             string p;
             //处理自引他引，对References进行标记
@@ -185,11 +197,12 @@ namespace Experiment
                     if (isOnlyMatchFirstAuthor && temp_names.Length > 0)
                     {
                         //只添加第一个作者到要匹配的列表中
-                        names.Add(temp_names[0]);
+                        names.Add(temp_names[0].Trim());
                     }
                     else
                     {
-                        names.AddRange(temp_names);
+                        temp_names.ToList().ForEach(i => names.Add(i.Trim()));
+                        //names.AddRange(temp_names);
                     }
                     //处理该被引文献下面的每个引用文献
                     foreach (var reference in job.References)
@@ -198,8 +211,19 @@ namespace Experiment
                         {
                             //合并多个作者行
                             string ref_name_str = PaperProcessHelper.CatAuthors(reference.Paragraphs);
-                            var match_names = names.Where(i => ref_name_str
-                                              .Contains(PaperProcessHelper.GetNameAbbr(i,true)));
+                            var match_names = names.Where(i =>
+                            {
+                                string key_pattern = "";
+                                if (isOnlyMatchNameAbbr)
+                                {
+                                    key_pattern = PaperProcessHelper.GetNameAbbr(i, true);
+                                }
+                                else
+                                {
+                                    key_pattern = PaperProcessHelper.GetFullNameWithNoAbbr(i, true);
+                                }
+                                return ref_name_str.Contains(key_pattern);
+                            });
 
                             reference.MatchedAuthors = match_names.ToList();
 
@@ -230,7 +254,7 @@ namespace Experiment
         /// </summary>
         /// <param name="jobList"></param>
         /// <param name="filePath"></param>
-        public void Output(JobList jobList, string newFilePath, OutputType outputType, OptionOutput option)
+        public void Output(JobList jobList, string newFilePath, OutputType outputType, OptionOutput option, bool isMatchNameAbbr = false)
         {
             using (DocX doc = DocX.Create(newFilePath))
             {
@@ -313,6 +337,17 @@ namespace Experiment
                     doc.InsertParagraph(tempLine, false, formattingBoldBlue);
                     tempLine = $"结果：总自引数={jobList.AllSelfReferenceCount}，总他引数={jobList.AllOtherReferenceCount}，总未定数={jobList.AllUnSetReferenceCount}";
                     doc.InsertParagraph(tempLine, false, formattingBoldBlue);
+                    if (isMatchNameAbbr)
+                    {
+                        tempLine = "匹配模式：使用姓名缩写(包含括号)";
+                        doc.InsertParagraph(tempLine, false, formattingBoldBlue);
+
+                    }
+                    else
+                    {
+                        tempLine = "匹配模式：使用姓名全称(不包含缩写部分)";
+                        doc.InsertParagraph(tempLine, false, formattingBoldBlue);
+                    }
                     doc.InsertParagraph();
                 }
 

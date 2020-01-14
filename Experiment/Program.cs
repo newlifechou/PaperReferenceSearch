@@ -13,7 +13,7 @@ namespace Experiment
         static void Main(string[] args)
         {
             string filePath = Path.Combine(Environment.CurrentDirectory, "样板输入.docx");
-            PaperProcess process = new PaperProcess();
+            PaperProcessService process = new PaperProcessService();
 
             if (!PaperProcessHelper.IsFormatOK(filePath).IsValid)
             {
