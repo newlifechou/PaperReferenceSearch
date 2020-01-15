@@ -51,6 +51,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Model\Author.cs" />
     <Compile Include="Model\DataFile.cs" />
     <Compile Include="Model\JobList.cs" />
     <Compile Include="Model\JobUnit.cs" />

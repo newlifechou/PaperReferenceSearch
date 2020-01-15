@@ -117,6 +117,15 @@
                         </Border>
                     </CheckBox.ToolTip>
                 </CheckBox>
+                <CheckBox Content="突出显示已匹配作者名"
+                      Style="{StaticResource StyleCheckBoxCommon}" 
+                      IsChecked="{Binding IsShowMatchedAuthorHighlight,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}">
+                    <CheckBox.ToolTip>
+                        <Border>
+                            <TextBlock Text="勾选使用绿色突出显示匹配上的作者"/>
+                        </Border>
+                    </CheckBox.ToolTip>
+                </CheckBox>
                 <CheckBox Content="输出全局统计信息"
                       Style="{StaticResource StyleCheckBoxCommon}" 
                       IsChecked="{Binding IsShowTotalStatistic,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}">

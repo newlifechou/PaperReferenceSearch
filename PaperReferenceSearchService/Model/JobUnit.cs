@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace PaperReferenceSearchService.Model
 {
+    /// <summary>
+    /// 代表一个文献单元，包含一个被引文献和援引文献组
+    /// </summary>
     public class JobUnit
     {
         public JobUnit()

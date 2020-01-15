@@ -13,6 +13,7 @@ namespace PaperReferenceSearchService.Model
         public bool IsShowTotalStatistic { get; set; }
         public bool IsOnlyMatchFirstAuthor { get; set; }
         public bool IsOnlyMatchNameAbbr { get; set; }
+        public bool IsShowMatchedAuthorHighlight { get; set; }
         public string InputFolder { get; set; }
         public string OutputFolder { get; set; }
     }

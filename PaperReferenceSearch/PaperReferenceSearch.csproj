@@ -130,15 +130,33 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-    <None Include="DataSample\包含重复项%28可处理%29.docx" />
-    <None Include="DataSample\不规范文档2.docx" />
-    <None Include="DataSample\不规范文档1.docx" />
-    <None Include="DataSample\测试文档1.docx" />
-    <None Include="DataSample\测试文档4.docx" />
-    <None Include="DataSample\不规范文档3.docx" />
-    <None Include="DataSample\测试文档2.docx" />
-    <None Include="DataSample\测试文档3.docx" />
-    <None Include="DataSample\不规范文档4.docx" />
+    <None Include="DataSample\包含重复项%28可处理%29.docx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="DataSample\不规范文档2.docx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="DataSample\不规范文档1.docx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="DataSample\测试文档1.docx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="DataSample\测试文档4.docx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="DataSample\不规范文档3.docx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="DataSample\测试文档2.docx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="DataSample\测试文档3.docx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="DataSample\不规范文档4.docx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="DataSample\测试文档5-相似姓名.docx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

@@ -31,6 +31,7 @@ namespace PaperReferenceSearch
             IsShowTotalStatistic = true;
             IsOnlyMatchFirstAuthor = false;
             IsOnlyMatchNameAbbr = true;
+            IsShowMatchedAuthorHighlight = true;
 
             CurrentProgress = 0;
             isStartEnable = true;
@@ -81,6 +82,7 @@ namespace PaperReferenceSearch
                 parameter.IsShowSelfReferenceTitleUnderLine = IsShowSelfReferenceTitleUnderLine;
                 parameter.IsShowTotalStatistic = IsShowTotalStatistic;
                 parameter.CanOpenOuputFolder = CanOpenOutputFolder;
+                parameter.IsShowMatchedAuthorHighlight = IsShowMatchedAuthorHighlight;
 
                 PaperProcessService service = new PaperProcessService();
                 service.Parameter = parameter;
@@ -307,7 +309,19 @@ namespace PaperReferenceSearch
                 RaisePropertyChanged(nameof(IsShowTotalStatistic));
             }
         }
-
+        private bool isShowMatchedAuthor;
+        public bool IsShowMatchedAuthorHighlight
+        {
+            get
+            {
+                return isShowMatchedAuthor;
+            }
+            set
+            {
+                isShowMatchedAuthor = value;
+                RaisePropertyChanged(nameof(IsShowMatchedAuthorHighlight));
+            }
+        }
         private bool isOnlyMatchFirstAuthor;
         public bool IsOnlyMatchFirstAuthor
         {

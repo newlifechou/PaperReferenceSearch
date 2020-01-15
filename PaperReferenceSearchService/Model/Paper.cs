@@ -18,9 +18,14 @@ namespace PaperReferenceSearchService.Model
             ReferenceType = PaperReferenceType.UnSet;
             Paragraphs = new Dictionary<string, string>();
             MatchedAuthors = new List<string>();
+            Authors = new List<Author>();
             NoneStandardInformation = "";
         }
         public List<string> MatchedAuthors { get; set; }
+
+        //添加所有作者的匹配列表
+        public List<Author> Authors { get; set; }
+
         public PaperReferenceType ReferenceType { get; set; }
         public Dictionary<string, string> Paragraphs { get; set; }
 

@@ -291,6 +291,8 @@ namespace PaperReferenceSearchService
                         all_master_names.ToList().ForEach(i => selectd_master_names.Add(i.Trim()));
                         //names.AddRange(temp_names);
                     }
+
+
                     //处理该被引文献下面的每个引用文献
                     foreach (var reference in job.References)
                     {
@@ -298,27 +300,46 @@ namespace PaperReferenceSearchService
                         {
                             //合并多个作者行
                             string ref_name_str = PaperProcessHelper.CatAuthors(reference.Paragraphs);
-                            //匹配作者行
-                            var match_names_ref = selectd_master_names.Where(i =>
+
+                            string[] ref_names = PaperProcessHelper.DivideNames(ref_name_str);
+                            foreach (var ref_name in ref_names)
+                            {
+                                var author = new Author { Name = ref_name, IsMatched = false };
+                                reference.Authors.Add(author);
+                            }
+
+                            //遍历选定被引文献作者
+                            foreach (var select_master_name in selectd_master_names)
                             {
                                 string key_pattern = "";
                                 if (Parameter.IsOnlyMatchNameAbbr)
                                 {
                                     //Pi, C (
-                                    key_pattern = PaperProcessHelper.GetNameAbbr(i, true);
+                                    key_pattern = PaperProcessHelper.GetNameAbbr(select_master_name, true);
                                 }
                                 else
                                 {
                                     //(Pi, Chao)
-                                    key_pattern = PaperProcessHelper.GetFullNameWithNoAbbr(i, true);
+                                    key_pattern = PaperProcessHelper.GetFullNameWithNoAbbr(select_master_name, true);
                                 }
-                                return ref_name_str.Contains(key_pattern);
-                            });
 
-                            reference.MatchedAuthors = match_names_ref.ToList();
+                                //遍历每个文献的作者名，看是否匹配当前被引文献作者
+                                foreach (var author in reference.Authors)
+                                {
+
+                                    if (author.Name.Contains(key_pattern))
+                                    {
+                                        author.IsMatched = true;
+                                        break;
+                                    }
+                                }
+                            }
+
+                            //存入匹配作者列表
+                            reference.MatchedAuthors = reference.Authors.Where(i => i.IsMatched).Select(i => i.Name).ToList<string>();
 
                             //得到匹配到的数字，标记该引用文献属于自引还是他引
-                            int result = match_names_ref.Count();
+                            int result = reference.Authors.Where(i => i.IsMatched).Count();
                             reference.ReferenceType = result > 0 ? PaperReferenceType.Self : PaperReferenceType.Other;
 
                         }
@@ -350,9 +371,9 @@ namespace PaperReferenceSearchService
             {
 
                 #region 预设样式
-                Formatting formatting = new Formatting();
-                formatting.FontFamily = new Font("宋体");
-                formatting.Size = 9;
+                Formatting normalFormat = new Formatting();
+                normalFormat.FontFamily = new Font("宋体");
+                normalFormat.Size = 9;
 
                 Formatting formattingBold = new Formatting();
                 formattingBold.FontFamily = new Font("宋体");
@@ -378,15 +399,24 @@ namespace PaperReferenceSearchService
                 formattingBoldRedBGYellow.FontColor = System.Drawing.Color.Red;
                 formattingBoldRedBGYellow.Highlight = Highlight.yellow;
 
+                Formatting formattingBluedBGLightGreen = new Formatting();
+                formattingBluedBGLightGreen.FontFamily = new Font("宋体");
+                formattingBluedBGLightGreen.Size = 9;
+                formattingBluedBGLightGreen.FontColor = System.Drawing.Color.Blue;
+                formattingBluedBGLightGreen.Highlight = Highlight.green;
+
+
                 Formatting formattingUnderLine = new Formatting();
-                formatting.FontFamily = new Font("宋体");
+                formattingUnderLine.FontFamily = new Font("宋体");
                 formattingUnderLine.Size = 9;
                 formattingUnderLine.UnderlineStyle = UnderlineStyle.singleLine;
 
                 Formatting formattingBGYellow = new Formatting();
-                formatting.FontFamily = new Font("宋体");
+                formattingBGYellow.FontFamily = new Font("宋体");
                 formattingBGYellow.Size = 9;
                 formattingBGYellow.Highlight = Highlight.yellow;
+
+
                 #endregion
 
                 //插入标题
@@ -423,12 +453,12 @@ namespace PaperReferenceSearchService
                     doc.InsertParagraph();
                     tempLine = $"全局统计信息";
                     doc.InsertParagraph(tempLine, false, formattingBoldBlue);
-                    tempLine = $"共处理：总被引数={jobList.AllPaperCount},总引用数={jobList.AllReferenceCount}";
+                    tempLine = $"处理：总被引文献数={jobList.AllPaperCount},总引用文献数={jobList.AllReferenceCount}";
                     doc.InsertParagraph(tempLine, false, formattingBoldBlue);
-                    tempLine = $"结果：总自引数={jobList.AllSelfReferenceCount}，总他引数={jobList.AllOtherReferenceCount}，总未定数={jobList.AllUnSetReferenceCount}";
+                    tempLine = $"结果：总自引文献数={jobList.AllSelfReferenceCount}，总他引文献数={jobList.AllOtherReferenceCount}，总未定文献数={jobList.AllUnSetReferenceCount}";
                     doc.InsertParagraph(tempLine, false, formattingBoldBlue);
 
-                    tempLine = "匹配模式：";
+                    tempLine = "使用的匹配模式：";
                     if (Parameter.IsOnlyMatchNameAbbr)
                     {
                         tempLine += "使用姓名缩写(包含左括号);";
@@ -502,7 +532,7 @@ namespace PaperReferenceSearchService
 
                     foreach (var paragraph in job.Master.Paragraphs)
                     {
-                        doc.InsertParagraph($"{paragraph.Key}:{paragraph.Value}", false, formatting);
+                        doc.InsertParagraph($"{paragraph.Key}:{paragraph.Value}", false, normalFormat);
                     }
 
                     master_Counter++;
@@ -545,7 +575,7 @@ namespace PaperReferenceSearchService
                                 foreach (var reference in misson_all)
                                 {
                                     tempLine = $"第{reference_Counter}条，共{misson_all.Count}条";
-                                    doc.InsertParagraph(tempLine, false, formatting);
+                                    doc.InsertParagraph(tempLine, false, normalFormat);
                                     foreach (var paragraph in reference.Paragraphs)
                                     {
                                         //标记自引的标题
@@ -557,7 +587,7 @@ namespace PaperReferenceSearchService
                                         }
                                         else
                                         {
-                                            doc.InsertParagraph($"{paragraph.Key}:{paragraph.Value}", false, formatting);
+                                            doc.InsertParagraph($"{paragraph.Key}:{paragraph.Value}", false, normalFormat);
                                         }
                                     }
                                     reference_Counter++;
@@ -565,7 +595,7 @@ namespace PaperReferenceSearchService
                             }
                             else
                             {
-                                doc.InsertParagraph("无", false, formatting);
+                                doc.InsertParagraph("无", false, normalFormat);
                             }
                             #endregion
                             break;
@@ -577,11 +607,10 @@ namespace PaperReferenceSearchService
                                 foreach (var reference in misson_self)
                                 {
                                     tempLine = $"第{reference_Counter}条，共{misson_self.Count()}条";
-                                    doc.InsertParagraph(tempLine, false, formatting);
+                                    doc.InsertParagraph(tempLine, false, normalFormat);
                                     foreach (var paragraph in reference.Paragraphs)
                                     {
-
-                                        doc.InsertParagraph($"{paragraph.Key}:{paragraph.Value}", false, formatting);
+                                        doc.InsertParagraph($"{paragraph.Key}:{paragraph.Value}", false, normalFormat);
                                     }
                                     reference_Counter++;
 
@@ -589,7 +618,7 @@ namespace PaperReferenceSearchService
                             }
                             else
                             {
-                                doc.InsertParagraph("无", false, formatting);
+                                doc.InsertParagraph("无", false, normalFormat);
                             }
                             #endregion
                             break;
@@ -602,17 +631,17 @@ namespace PaperReferenceSearchService
                                 foreach (var reference in misson_other)
                                 {
                                     tempLine = $"第{reference_Counter}条，共{misson_other.Count()}条";
-                                    doc.InsertParagraph(tempLine, false, formatting);
+                                    doc.InsertParagraph(tempLine, false, normalFormat);
                                     foreach (var paragraph in reference.Paragraphs)
                                     {
-                                        doc.InsertParagraph($"{paragraph.Key}:{paragraph.Value}", false, formatting);
+                                        doc.InsertParagraph($"{paragraph.Key}:{paragraph.Value}", false, normalFormat);
                                     }
                                     reference_Counter++;
                                 }
                             }
                             else
                             {
-                                doc.InsertParagraph("无", false, formatting);
+                                doc.InsertParagraph("无", false, normalFormat);
                             }
                             #endregion
                             break;
@@ -624,7 +653,7 @@ namespace PaperReferenceSearchService
                                 foreach (var reference in misson_self_with_authors)
                                 {
                                     tempLine = $"第{reference_Counter}条，共{misson_self_with_authors.Count()}条";
-                                    doc.InsertParagraph(tempLine, false, formatting);
+                                    doc.InsertParagraph(tempLine, false, normalFormat);
 
                                     if (reference.MatchedAuthors.Count > 0)
                                     {
@@ -641,7 +670,44 @@ namespace PaperReferenceSearchService
                                     {
                                         if (reference.ReferenceType == PaperReferenceType.Self)
                                         {
-                                            doc.InsertParagraph($"{paragraph.Key}:{paragraph.Value}", false, formatting);
+                                            //doc.InsertParagraph($"{paragraph.Key}:{paragraph.Value}", false, normalFormat);
+                                            #region 高亮输出匹配作者
+                                            if (paragraph.Key == "作者")
+                                            {
+                                                //
+                                                Formatting matchedAuthor = formattingBluedBGLightGreen;
+                                                Paragraph p_temp = doc.InsertParagraph();
+                                                p_temp.Append($"{paragraph.Key}:", normalFormat);
+
+                                                //如果有匹配自引作者，突出显示该作者
+                                                if (reference.MatchedAuthors.Count > 0 && Parameter.IsShowMatchedAuthorHighlight)
+                                                {
+                                                    for (int i = 0; i < reference.Authors.Count(); i++)
+                                                    {
+                                                        if (reference.Authors[i].IsMatched)
+                                                        {
+                                                            p_temp.Append($"{reference.Authors[i].Name}", matchedAuthor);
+                                                        }
+                                                        else
+                                                        {
+                                                            p_temp.Append($"{reference.Authors[i].Name}", normalFormat);
+                                                        }
+                                                        if (i < reference.Authors.Count - 1)
+                                                        {
+                                                            p_temp.Append($";", normalFormat);
+                                                        }
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    p_temp.Append($"{paragraph.Value}", normalFormat);
+                                                }
+                                            }
+                                            else
+                                            {
+                                                doc.InsertParagraph($"{paragraph.Key}:{paragraph.Value}", false, normalFormat);
+                                            }
+                                            #endregion
                                         }
                                     }
                                     reference_Counter++;
@@ -649,7 +715,7 @@ namespace PaperReferenceSearchService
                             }
                             else
                             {
-                                doc.InsertParagraph("无", false, formatting);
+                                doc.InsertParagraph("无", false, normalFormat);
                             }
                             #endregion
                             break;
@@ -662,7 +728,7 @@ namespace PaperReferenceSearchService
                                 {
                                     tempLine = $"第{reference_Counter}条，共{misson_test.Count}条";
 
-                                    doc.InsertParagraph(tempLine, false, formatting);
+                                    doc.InsertParagraph(tempLine, false, normalFormat);
 
                                     //输出文献格式信息
                                     if (reference.NoneStandardInformation != "")
@@ -684,7 +750,26 @@ namespace PaperReferenceSearchService
                                         {
                                             matched_authors += i + ";";
                                         });
-                                        doc.InsertParagraph($"[{matched_authors}]", false, formattingBoldBlue);
+                                        doc.InsertParagraph($"匹配上的全名=[{matched_authors}]", false, formattingBoldBlue);
+
+                                        //输出匹配内容
+                                        string p_line = "";
+                                        foreach (var item in reference.MatchedAuthors)
+                                        {
+
+                                            if (Parameter.IsOnlyMatchNameAbbr)
+                                            {
+                                                p_line += $"[{PaperProcessHelper.GetNameAbbr(item, true)}] ";
+                                            }
+                                            else
+                                            {
+                                                p_line += $"[{PaperProcessHelper.GetFullNameWithNoAbbr(item, true)}]";
+                                            }
+
+                                        }
+
+                                        doc.InsertParagraph($"匹配的字符串={p_line}", false, formattingBoldBlue);
+
                                     }
 
                                     foreach (var paragraph in reference.Paragraphs)
@@ -696,31 +781,40 @@ namespace PaperReferenceSearchService
                                             doc.InsertParagraph($"{paragraph.Key}:{paragraph.Value}",
                                                 false, titleFormating);
                                         }
-                                        //else if (paragraph.Key == "作者")
-                                        //{
-                                        //    //
-                                        //    Formatting authorFormating = Parameter.IsShowSelfReferenceTitleUnderLine ? formattingUnderLine : formattingBGYellow;
-                                        //    Paragraph p_temp = doc.InsertParagraph();
-                                        //    p_temp.Append($"{paragraph.Key}:", formatting);
+                                        else if (paragraph.Key == "作者")
+                                        {
+                                            //
+                                            Formatting matchedAuthor = formattingBluedBGLightGreen;
+                                            Paragraph p_temp = doc.InsertParagraph();
+                                            p_temp.Append($"{paragraph.Key}:", normalFormat);
 
-                                        //    //如果有匹配自引作者，突出显示该作者
-                                        //    if (reference.MatchedAuthors.Count > 0)
-                                        //    {
-                                        //        foreach (var matchName in reference.MatchedAuthors)
-                                        //        {
-                                        //            p_temp.Append($"{paragraph.Value}", authorFormating);
-                                        //            p_temp.
-                                        //        }
-                                        //        p_temp.Append($"{paragraph.Value}", authorFormating);
-                                        //    }
-                                        //    else
-                                        //    {
-                                        //        p_temp.Append($"{paragraph.Value}", formatting);
-                                        //    }
-                                        //}
+                                            //如果有匹配自引作者，突出显示该作者
+                                            if (reference.MatchedAuthors.Count > 0 && Parameter.IsShowMatchedAuthorHighlight)
+                                            {
+                                                for (int i = 0; i < reference.Authors.Count(); i++)
+                                                {
+                                                    if (reference.Authors[i].IsMatched)
+                                                    {
+                                                        p_temp.Append($"{reference.Authors[i].Name}", matchedAuthor);
+                                                    }
+                                                    else
+                                                    {
+                                                        p_temp.Append($"{reference.Authors[i].Name}", normalFormat);
+                                                    }
+                                                    if (i < reference.Authors.Count - 1)
+                                                    {
+                                                        p_temp.Append($";", normalFormat);
+                                                    }
+                                                }
+                                            }
+                                            else
+                                            {
+                                                p_temp.Append($"{paragraph.Value}", normalFormat);
+                                            }
+                                        }
                                         else
                                         {
-                                            doc.InsertParagraph($"{paragraph.Key}:{paragraph.Value}", false, formatting);
+                                            doc.InsertParagraph($"{paragraph.Key}:{paragraph.Value}", false, normalFormat);
                                         }
                                     }
 
@@ -729,7 +823,7 @@ namespace PaperReferenceSearchService
                             }
                             else
                             {
-                                doc.InsertParagraph("无", false, formatting);
+                                doc.InsertParagraph("无", false, normalFormat);
                             }
                             #endregion
                             break;
