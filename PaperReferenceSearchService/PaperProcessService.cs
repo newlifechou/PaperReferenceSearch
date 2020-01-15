@@ -52,12 +52,15 @@ namespace PaperReferenceSearchService
             int job_total_count = jobs.Count();
             int job_counter = 0;
 
-            UpdateStatus("####分析中，请等待");
             foreach (var file in jobs)
             {
+                UpdateStatus($"####解析文档内容，请等待[{file.Name}]");
                 var joblist = Resolve(file.FullName);
+                UpdateStatus($"####分析引用类型，请等待[{file.Name}]");
                 Analyse(joblist);
 
+
+                UpdateStatus("####开始输出文档，请等待");
 
                 var fileNameNoExtension = Path.GetFileNameWithoutExtension(file.FullName);
 
@@ -300,10 +303,12 @@ namespace PaperReferenceSearchService
                                 string key_pattern = "";
                                 if (Parameter.IsOnlyMatchNameAbbr)
                                 {
+                                    //Pi, C (
                                     key_pattern = PaperProcessHelper.GetNameAbbr(i, true);
                                 }
                                 else
                                 {
+                                    //(Pi, Chao)
                                     key_pattern = PaperProcessHelper.GetFullNameWithNoAbbr(i, true);
                                 }
                                 return ref_name_str.Contains(key_pattern);
@@ -425,11 +430,11 @@ namespace PaperReferenceSearchService
                     tempLine = "匹配模式：";
                     if (Parameter.IsOnlyMatchNameAbbr)
                     {
-                        tempLine += "使用姓名缩写(包含括号);";
+                        tempLine += "使用姓名缩写(包含左括号);";
                     }
                     else
                     {
-                        tempLine += "使用姓名全称(不包含缩写部分);";
+                        tempLine += "使用姓名全称(包含左右括号);";
                     }
 
                     if (Parameter.IsOnlyMatchFirstAuthor)
@@ -690,6 +695,28 @@ namespace PaperReferenceSearchService
                                             doc.InsertParagraph($"{paragraph.Key}:{paragraph.Value}",
                                                 false, titleFormating);
                                         }
+                                        //else if (paragraph.Key == "作者")
+                                        //{
+                                        //    //
+                                        //    Formatting authorFormating = Parameter.IsShowSelfReferenceTitleUnderLine ? formattingUnderLine : formattingBGYellow;
+                                        //    Paragraph p_temp = doc.InsertParagraph();
+                                        //    p_temp.Append($"{paragraph.Key}:", formatting);
+
+                                        //    //如果有匹配自引作者，突出显示该作者
+                                        //    if (reference.MatchedAuthors.Count > 0)
+                                        //    {
+                                        //        foreach (var matchName in reference.MatchedAuthors)
+                                        //        {
+                                        //            p_temp.Append($"{paragraph.Value}", authorFormating);
+                                        //            p_temp.
+                                        //        }
+                                        //        p_temp.Append($"{paragraph.Value}", authorFormating);
+                                        //    }
+                                        //    else
+                                        //    {
+                                        //        p_temp.Append($"{paragraph.Value}", formatting);
+                                        //    }
+                                        //}
                                         else
                                         {
                                             doc.InsertParagraph($"{paragraph.Key}:{paragraph.Value}", false, formatting);

@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:PaperReferenceSearch"
         mc:Ignorable="d"
-        Title="文献自引他引解析工具 v1.0.2.5"
+        Title="文献自引他引解析工具 v1.2"
         Icon="Resource\Images\chart-icon.png"
         WindowStartupLocation="CenterScreen"
         MinHeight="450" MinWidth="600" Width="850" Height="600">
@@ -23,7 +23,7 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition/>
         </Grid.RowDefinitions>
-        <TextBlock Grid.Row="0" Text="先确定所有文件均符合规范格式，再执行下面的操作(点击右边按钮查看规范说明)"
+        <TextBlock Grid.Row="0" Text="先确定文件均符合规范，再执行下面操作(默认载入是示例文档，点击右边按钮查看规范说明)"
                    Style="{StaticResource StyleTextBlockCommon}"/>
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
@@ -81,15 +81,16 @@
                 <ColumnDefinition Width="auto"/>
             </Grid.ColumnDefinitions>
             <TextBlock Grid.Row="0" Grid.Column="0" Text="匹配选项" Style="{StaticResource StyleTextBlockCommon}"
-                        Foreground="Blue" ToolTip="" Background="LightGreen"/>
-            <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
+                        Foreground="Blue" ToolTip="" Background="LightBlue"/>
+            <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Left">
 
-                <CheckBox Content="只匹配姓名缩写部分(包含括号)"
+                <CheckBox Content="只匹配姓名缩写部分(包含左边括号)"
                       Style="{StaticResource StyleCheckBoxCommon}" 
                       IsChecked="{Binding IsOnlyMatchNameAbbr,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}">
                     <CheckBox.ToolTip>
                         <Border>
-                            <TextBlock Text="不勾选是匹配姓名全名(不包含括号和缩写部分)"/>
+                            <TextBlock Text="比如Pi, C (Pi, Chao) 勾选匹配:[Pi, C (] 不勾选是匹配姓名全名包含括号:[(Pi, Chao)]"
+                                       FontSize="10"/>
                         </Border>
                     </CheckBox.ToolTip>
                 </CheckBox>
@@ -99,20 +100,20 @@
                       IsChecked="{Binding IsOnlyMatchFirstAuthor,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}">
                     <CheckBox.ToolTip>
                         <Border>
-                            <TextBlock Text="不勾选匹配被引文献的所有作者"/>
+                            <TextBlock Text="勾选只匹配被引文献的第一个作者，不勾选匹配所有作者"/>
                         </Border>
                     </CheckBox.ToolTip>
                 </CheckBox>
             </StackPanel>
             <TextBlock Grid.Row="1" Grid.Column="0" Text="输出选项" Style="{StaticResource StyleTextBlockCommon}"
-                        Foreground="Blue" ToolTip=""  Background="LightGreen"/>
-            <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
+                        Foreground="Blue" ToolTip=""  Background="LightBlue"/>
+            <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Left">
                 <CheckBox Content="下划线标记自引标题"
                       Style="{StaticResource StyleCheckBoxCommon}" 
                       IsChecked="{Binding IsShowSelfReferenceTitleUnderLine,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}">
                     <CheckBox.ToolTip>
                         <Border>
-                            <TextBlock Text="不勾选使用黄色背景色标注"/>
+                            <TextBlock Text="勾选使用下划线标记自引文献标题，不勾选使用黄色背景色标注"/>
                         </Border>
                     </CheckBox.ToolTip>
                 </CheckBox>
@@ -121,7 +122,7 @@
                       IsChecked="{Binding IsShowTotalStatistic,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}">
                     <CheckBox.ToolTip>
                         <Border>
-                            <TextBlock Text="输出全局统计信息到每篇输入文档的页首"/>
+                            <TextBlock Text="勾选输出全局统计信息到每篇输入文档的页首"/>
                         </Border>
                     </CheckBox.ToolTip>
                 </CheckBox>

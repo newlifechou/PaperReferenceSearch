@@ -34,14 +34,18 @@ namespace PaperReferenceSearch
 
             CurrentProgress = 0;
             isStartEnable = true;
-
-            LoadInputFiles();
-
             ChooseInputFolder = new RelayCommand(ActionChooseInputFolder, () => isStartEnable);
             RefreshInputFolder = new RelayCommand(ActionRefreshInputFolder, () => isStartEnable);
             ChooseOutputFolder = new RelayCommand(ActionChooseOutputFolder, () => isStartEnable);
             OpenDataFile = new RelayCommand<DataFile>(ActionOpenDataFile);
             Start = new RelayCommand(ActionStart, CanStart);
+
+            statusHelper.ClearStatus();
+            //载入欢迎信息
+            string welcome = XSHelper.FileHelper.GetFullFileName("Startup.txt", XSHelper.FileHelper.GetCurrentFolderPath());
+            UpdateStatusMessage(XSHelper.FileHelper.ReadText(welcome) ?? "");
+            //首次载入文件
+            LoadInputFiles();
         }
 
         private void ActionStart()
@@ -180,6 +184,8 @@ namespace PaperReferenceSearch
                 InputPath = dialogResult.SelectPath;
                 UpdateStatusMessage($"设置输入数据文件夹为{InputPath}");
                 CurrentProgress = 0;
+
+                statusHelper.ClearStatus();
                 LoadInputFiles();
             }
 
@@ -187,7 +193,6 @@ namespace PaperReferenceSearch
 
         private void LoadInputFiles()
         {
-            statusHelper.ClearStatus();
             if (Directory.Exists(InputPath))
             {
                 InputFiles.Clear();
@@ -210,7 +215,7 @@ namespace PaperReferenceSearch
                 }
                 int valid_count = InputFiles.Where(i => i.IsValid).Count();
                 UpdateStatusMessage($"共添加了{InputFiles.Count}个输入文件,有效文件共{valid_count}个");
-                UpdateStatusMessage("程序仅辅助判定文件是否有效,无效文件处理时将跳过");
+                UpdateStatusMessage("###无效文件处理时将跳过");
 
             }
         }

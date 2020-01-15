@@ -110,41 +110,12 @@ namespace PaperReferenceSearchService
 
         /// <summary>
         /// 获取没有缩写部分的姓名全名
+        /// (Pi, Chao)
         /// </summary>
         /// <param name="name"></param>
         /// <param name="withFirstBracket"></param>
         /// <returns></returns>
-        public static string GetFullNameWithNoAbbr(string name, bool withFirstBracket)
-        {
-            if (string.IsNullOrEmpty(name))
-                return null;
-            string result;
-            //姓名包含括号的情况
-            if (name.Contains('('))
-            {
-                int position = name.IndexOf("(");
-                if (withFirstBracket)
-                {
-                    result = name.Substring(0, position + 1);
-                }
-                else
-                {
-                    result = name.Substring(0, position);
-                }
-            }
-            else
-            {
-                result = name;
-            }
-            return result.Trim();
-        }
-        /// <summary>
-        /// 获取只有缩写部分的姓名缩写名
-        /// 2020-1-13 利用正则表达式重写
-        /// </summary>
-        /// <param name="name"></param>
-        /// <returns></returns>
-        public static string GetNameAbbr(string name, bool withFullBracket)
+        public static string GetFullNameWithNoAbbr(string name, bool withFullBracket)
         {
             if (string.IsNullOrEmpty(name))
                 return null;
@@ -169,6 +140,39 @@ namespace PaperReferenceSearchService
                 }
             }
             return name;
+        }
+        /// <summary>
+        /// 获取只有缩写部分的姓名缩写名
+        /// Pi, C (
+        /// 2020-1-13 利用正则表达式重写
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        public static string GetNameAbbr(string name, bool withFirstBracket)
+        {
+
+            if (string.IsNullOrEmpty(name))
+                return null;
+            string result;
+            //姓名包含括号的情况
+            if (name.Contains('('))
+            {
+                int position = name.IndexOf("(");
+                if (withFirstBracket)
+                {
+                    result = name.Substring(0, position + 1);
+                }
+                else
+                {
+                    result = name.Substring(0, position);
+                }
+            }
+            else
+            {
+                result = name;
+            }
+            return result.Trim();
+
         }
         /// <summary>
         /// 获取姓名字符串全称（包含括号）
