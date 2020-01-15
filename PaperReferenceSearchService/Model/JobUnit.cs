@@ -13,8 +13,8 @@ namespace PaperReferenceSearchService.Model
             Master = new Paper();
             References = new List<Paper>();
         }
-        public Paper Master { get; set; }
-        public List<Paper> References { get; set; }
+        public Paper Master { get; set; }//被引文献
+        public List<Paper> References { get; set; }//援引文献
 
         public int ReferenceCount
         {

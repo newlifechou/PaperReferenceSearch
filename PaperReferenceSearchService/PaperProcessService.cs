@@ -278,17 +278,17 @@ namespace PaperReferenceSearchService
                 if (job.Master.Paragraphs.Keys.Where(i => i.Contains("作者")).Count() > 0)
                 {
                     p = PaperProcessHelper.CatAuthors(job.Master.Paragraphs);
-                    string[] temp_names = PaperProcessHelper.DivideNames(p);
+                    string[] all_master_names = PaperProcessHelper.DivideNames(p);
 
-                    List<string> names = new List<string>();
-                    if (Parameter.IsOnlyMatchFirstAuthor && temp_names.Length > 0)
+                    List<string> selectd_master_names = new List<string>();
+                    if (Parameter.IsOnlyMatchFirstAuthor && all_master_names.Length > 0)
                     {
                         //只添加第一个作者到要匹配的列表中
-                        names.Add(temp_names[0].Trim());
+                        selectd_master_names.Add(all_master_names[0].Trim());
                     }
                     else
                     {
-                        temp_names.ToList().ForEach(i => names.Add(i.Trim()));
+                        all_master_names.ToList().ForEach(i => selectd_master_names.Add(i.Trim()));
                         //names.AddRange(temp_names);
                     }
                     //处理该被引文献下面的每个引用文献
@@ -298,7 +298,7 @@ namespace PaperReferenceSearchService
                         {
                             //合并多个作者行
                             string ref_name_str = PaperProcessHelper.CatAuthors(reference.Paragraphs);
-                            var match_names = names.Where(i =>
+                            var match_names_reference = selectd_master_names.Where(i =>
                             {
                                 string key_pattern = "";
                                 if (Parameter.IsOnlyMatchNameAbbr)
@@ -314,10 +314,10 @@ namespace PaperReferenceSearchService
                                 return ref_name_str.Contains(key_pattern);
                             });
 
-                            reference.MatchedAuthors = match_names.ToList();
+                            reference.MatchedAuthors = match_names_reference.ToList();
 
                             //得到匹配到的数字，标记该引用文献属于自引还是他引
-                            int result = match_names.Count();
+                            int result = match_names_reference.Count();
                             reference.ReferenceType = result > 0 ? PaperReferenceType.Self : PaperReferenceType.Other;
 
                         }
