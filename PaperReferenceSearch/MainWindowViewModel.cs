@@ -27,7 +27,7 @@ namespace PaperReferenceSearch
             inputPath = System.IO.Path.Combine(Environment.CurrentDirectory, "DataSample");
             outputPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
             canOpenOutputFolder = true;
-            IsShowSelfReferenceTitleUnderLine = false;
+            IsShowSelfReferenceTitleUnderLine = true;
             IsShowTotalStatistic = true;
             IsOnlyMatchFirstAuthor = false;
             IsOnlyMatchNameAbbr = true;

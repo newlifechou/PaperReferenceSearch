@@ -330,7 +330,7 @@ namespace PaperReferenceSearchService
                                     if (author.Name.Contains(key_pattern))
                                     {
                                         author.IsMatched = true;
-                                        break;
+                                        //break;
                                     }
                                 }
                             }
@@ -743,6 +743,34 @@ namespace PaperReferenceSearchService
 
                                     if (reference.MatchedAuthors.Count > 0)
                                     {
+                                        #region 输出匹配信息到每个引用文献前面
+                                        List<string> uniqueMatchedStr = new List<string>();
+                                        foreach (var item in reference.MatchedAuthors)
+                                        {
+                                            string temp_name;
+                                            if (Parameter.IsOnlyMatchNameAbbr)
+                                            {
+                                                temp_name = PaperProcessHelper.GetNameAbbr(item, true);
+                                            }
+                                            else
+                                            {
+                                                temp_name = PaperProcessHelper.GetFullNameWithNoAbbr(item, true);
+                                            }
+                                            //去重
+                                            if (!uniqueMatchedStr.Contains(temp_name))
+                                            {
+                                                uniqueMatchedStr.Add(temp_name);
+                                            }
+                                        }
+                                        //输出匹配内容
+                                        string p_line = "";
+                                        foreach (var item in uniqueMatchedStr)
+                                        {
+                                            p_line += $"[{item}] ";
+                                        }
+
+                                        doc.InsertParagraph($"匹配用的字符串{uniqueMatchedStr.Count}个={p_line}", false, formattingBoldBlue);
+
                                         doc.InsertParagraph($"[匹配上的作者共{reference.MatchedAuthors.Count}人]",
                                             false, formattingBoldBlue);
                                         string matched_authors = "";
@@ -752,24 +780,20 @@ namespace PaperReferenceSearchService
                                         });
                                         doc.InsertParagraph($"匹配上的全名=[{matched_authors}]", false, formattingBoldBlue);
 
-                                        //输出匹配内容
-                                        string p_line = "";
-                                        foreach (var item in reference.MatchedAuthors)
+                                        if (uniqueMatchedStr.Count != reference.MatchedAuthors.Count)
                                         {
-
+                                            string matchtype = "";
                                             if (Parameter.IsOnlyMatchNameAbbr)
                                             {
-                                                p_line += $"[{PaperProcessHelper.GetNameAbbr(item, true)}] ";
+                                                matchtype = "匹配缩写";
                                             }
                                             else
                                             {
-                                                p_line += $"[{PaperProcessHelper.GetFullNameWithNoAbbr(item, true)}]";
+                                                matchtype = "匹配全名";
                                             }
-
+                                            doc.InsertParagraph($"###使用[{matchtype}],但匹配上作者不等于匹配字符串数目，请人工检查此段", false, formattingBoldRed);
                                         }
-
-                                        doc.InsertParagraph($"匹配的字符串={p_line}", false, formattingBoldBlue);
-
+                                        #endregion
                                     }
 
                                     foreach (var paragraph in reference.Paragraphs)
