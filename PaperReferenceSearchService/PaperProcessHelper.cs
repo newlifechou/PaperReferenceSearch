@@ -222,6 +222,7 @@ namespace PaperReferenceSearchService
         }
         /// <summary>
         /// 连接作者
+        /// 不包含[作者]key字段
         /// </summary>
         /// <param name="dict"></param>
         /// <returns></returns>

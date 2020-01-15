@@ -270,15 +270,15 @@ namespace PaperReferenceSearchService
         /// <param name="jobList"></param>
         public void Analyse(JobList jobList)
         {
-            string p;
+            string master_name_str;
             //处理自引他引，对References进行标记
             foreach (var job in jobList.Jobs)
             {
                 //找到Master的作者段落
                 if (job.Master.Paragraphs.Keys.Where(i => i.Contains("作者")).Count() > 0)
                 {
-                    p = PaperProcessHelper.CatAuthors(job.Master.Paragraphs);
-                    string[] all_master_names = PaperProcessHelper.DivideNames(p);
+                    master_name_str = PaperProcessHelper.CatAuthors(job.Master.Paragraphs);
+                    string[] all_master_names = PaperProcessHelper.DivideNames(master_name_str);
 
                     List<string> selectd_master_names = new List<string>();
                     if (Parameter.IsOnlyMatchFirstAuthor && all_master_names.Length > 0)
@@ -298,7 +298,8 @@ namespace PaperReferenceSearchService
                         {
                             //合并多个作者行
                             string ref_name_str = PaperProcessHelper.CatAuthors(reference.Paragraphs);
-                            var match_names_reference = selectd_master_names.Where(i =>
+                            //匹配作者行
+                            var match_names_ref = selectd_master_names.Where(i =>
                             {
                                 string key_pattern = "";
                                 if (Parameter.IsOnlyMatchNameAbbr)
@@ -314,10 +315,10 @@ namespace PaperReferenceSearchService
                                 return ref_name_str.Contains(key_pattern);
                             });
 
-                            reference.MatchedAuthors = match_names_reference.ToList();
+                            reference.MatchedAuthors = match_names_ref.ToList();
 
                             //得到匹配到的数字，标记该引用文献属于自引还是他引
-                            int result = match_names_reference.Count();
+                            int result = match_names_ref.Count();
                             reference.ReferenceType = result > 0 ? PaperReferenceType.Self : PaperReferenceType.Other;
 
                         }
