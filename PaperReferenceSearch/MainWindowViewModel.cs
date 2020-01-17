@@ -32,6 +32,7 @@ namespace PaperReferenceSearch
             IsOnlyMatchFirstAuthor = false;
             IsOnlyMatchNameAbbr = true;
             IsShowMatchedAuthorHighlight = true;
+            IsIncludeBracket = true;
 
             CurrentProgress = 0;
             isStartEnable = true;
@@ -83,6 +84,7 @@ namespace PaperReferenceSearch
                 parameter.IsShowTotalStatistic = IsShowTotalStatistic;
                 parameter.CanOpenOuputFolder = CanOpenOutputFolder;
                 parameter.IsShowMatchedAuthorHighlight = IsShowMatchedAuthorHighlight;
+                parameter.IsIncludeBracket = IsIncludeBracket;
 
                 PaperProcessService service = new PaperProcessService();
                 service.Parameter = parameter;
@@ -146,7 +148,7 @@ namespace PaperReferenceSearch
         {
             string description = "请选择输出文件夹用来存放输出文档";
 
-            PathParameter dialogResult = XSHelper.FileHelper.ShowFolderBrowserDialog(description);
+            XSDialogResult dialogResult = XSHelper.DialogHelper.ShowFolderBrowserDialog(description);
             if (!dialogResult.HasSelected) return;
             if (string.IsNullOrEmpty(dialogResult.SelectPath))
             {
@@ -172,7 +174,7 @@ namespace PaperReferenceSearch
         private void ActionChooseInputFolder()
         {
             string description = "请选择存放要处理文档的文件夹\r\n确保格式是docx且符合规范要求";
-            PathParameter dialogResult = XSHelper.FileHelper.ShowFolderBrowserDialog(description);
+            XSDialogResult dialogResult = XSHelper.DialogHelper.ShowFolderBrowserDialog(description);
             if (!dialogResult.HasSelected)
                 return;
 
@@ -349,6 +351,21 @@ namespace PaperReferenceSearch
                 RaisePropertyChanged(nameof(IsOnlyMatchNameAbbr));
             }
         }
+
+        private bool isIncludeBracket;
+        public bool IsIncludeBracket
+        {
+            get
+            {
+                return isIncludeBracket;
+            }
+            set
+            {
+                isIncludeBracket = value;
+                RaisePropertyChanged(nameof(IsIncludeBracket));
+            }
+        }
+
         private double currentProgress;
         public double CurrentProgress
         {

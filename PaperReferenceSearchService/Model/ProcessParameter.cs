@@ -14,7 +14,9 @@ namespace PaperReferenceSearchService.Model
         public bool IsOnlyMatchFirstAuthor { get; set; }
         public bool IsOnlyMatchNameAbbr { get; set; }
         public bool IsShowMatchedAuthorHighlight { get; set; }
+        public bool IsIncludeBracket { get; set; }
         public string InputFolder { get; set; }
         public string OutputFolder { get; set; }
+       
     }
 }

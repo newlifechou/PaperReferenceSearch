@@ -312,15 +312,16 @@ namespace PaperReferenceSearchService
                             foreach (var select_master_name in selectd_master_names)
                             {
                                 string key_pattern = "";
+                                bool isIncludeBracket = Parameter.IsIncludeBracket;
                                 if (Parameter.IsOnlyMatchNameAbbr)
                                 {
                                     //Pi, C (
-                                    key_pattern = PaperProcessHelper.GetNameAbbr(select_master_name, true);
+                                    key_pattern = PaperProcessHelper.GetNameAbbr(select_master_name, isIncludeBracket);
                                 }
                                 else
                                 {
                                     //(Pi, Chao)
-                                    key_pattern = PaperProcessHelper.GetFullNameWithNoAbbr(select_master_name, true);
+                                    key_pattern = PaperProcessHelper.GetFullNameWithNoAbbr(select_master_name, isIncludeBracket);
                                 }
 
                                 //遍历每个文献的作者名，看是否匹配当前被引文献作者

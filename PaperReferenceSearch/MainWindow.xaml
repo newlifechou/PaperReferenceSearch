@@ -84,7 +84,7 @@
                         Foreground="Blue" ToolTip="" Background="LightBlue"/>
             <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Left">
 
-                <CheckBox Content="只匹配姓名缩写部分(包含左边括号)"
+                <CheckBox Content="只匹配姓名缩写部分"
                       Style="{StaticResource StyleCheckBoxCommon}" 
                       IsChecked="{Binding IsOnlyMatchNameAbbr,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}">
                     <CheckBox.ToolTip>
@@ -95,6 +95,15 @@
                     </CheckBox.ToolTip>
                 </CheckBox>
 
+                <CheckBox Content="包含括号"
+                      Style="{StaticResource StyleCheckBoxCommon}" 
+                      IsChecked="{Binding IsIncludeBracket,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}">
+                    <CheckBox.ToolTip>
+                        <Border>
+                            <TextBlock Text="勾选 匹配时，缩写包含左括号，全名包含右括号，不勾选 不包含括号, 建议勾选"/>
+                        </Border>
+                    </CheckBox.ToolTip>
+                </CheckBox>
                 <CheckBox Content="只匹配被引文献的第一作者"
                       Style="{StaticResource StyleCheckBoxCommon}" 
                       IsChecked="{Binding IsOnlyMatchFirstAuthor,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}">
