@@ -462,11 +462,29 @@ namespace PaperReferenceSearchService
                     tempLine = "使用的匹配模式：";
                     if (Parameter.IsOnlyMatchNameAbbr)
                     {
-                        tempLine += "使用姓名缩写(包含左括号);";
+                        tempLine += "使用姓名缩写";
+                        if (Parameter.IsIncludeBracket)
+                        {
+                            tempLine += "(包含左括号)";
+                        }
+                        else
+                        {
+                            tempLine += "(不包含括号)";
+                        }
+                        tempLine += ";";
                     }
                     else
                     {
                         tempLine += "使用姓名全称(包含左右括号);";
+                        if (Parameter.IsIncludeBracket)
+                        {
+                            tempLine += "(包含左右括号)";
+                        }
+                        else
+                        {
+                            tempLine += "(不包含括号)";
+                        }
+                        tempLine += ";";
                     }
 
                     if (Parameter.IsOnlyMatchFirstAuthor)
@@ -751,11 +769,13 @@ namespace PaperReferenceSearchService
                                             string temp_name;
                                             if (Parameter.IsOnlyMatchNameAbbr)
                                             {
-                                                temp_name = PaperProcessHelper.GetNameAbbr(item, true);
+                                                temp_name = PaperProcessHelper.GetNameAbbr(item,
+                                                    Parameter.IsIncludeBracket);
                                             }
                                             else
                                             {
-                                                temp_name = PaperProcessHelper.GetFullNameWithNoAbbr(item, true);
+                                                temp_name = PaperProcessHelper.GetFullNameWithNoAbbr(item,
+                                                    Parameter.IsIncludeBracket);
                                             }
                                             //去重
                                             if (!uniqueMatchedStr.Contains(temp_name))
